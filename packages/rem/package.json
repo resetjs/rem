@@ -1,0 +1,58 @@
+{
+  "name": "@resetjs/rem",
+  "version": "1.0.0",
+  "description": "🧊 REM provides you with powerful support!",
+  "keywords": [
+    "antd",
+    "admin",
+    "ant-design",
+    "ant-design-pro"
+  ],
+  "sideEffects": [
+    "*.less"
+  ],
+  "homepage": "https://github.com/resetjs/rem",
+  "bugs": "https://github.com/resetjs/rem/issues",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:resetjs/rem.git",
+    "brach": "main"
+  },
+  "license": "MIT",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "es",
+    "dist"
+  ],
+  "browserslist": [
+    "last 2 versions",
+    "Firefox ESR",
+    "> 1%",
+    "ie >= 11"
+  ],
+  "dependencies": {
+    "@ant-design/icons": "^4.1.0",
+    "@ant-design/pro-field": "1.9.4",
+    "@ant-design/pro-form": "1.15.4",
+    "@ant-design/pro-layout": "^6.14.0",
+    "@ant-design/pro-provider": "1.4.4",
+    "@ant-design/pro-utils": "1.12.0",
+    "@ant-design/pro-table": "^2.30.0",
+    "classnames": "^2.2.6",
+    "moment": "^2.24.0"
+  },
+  "peerDependencies": {
+    "antd": "4.x",
+    "react": "^16.x"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "authors": "freddy <xoptimal@163.com> (https://github.com/xoptimal)"
+}
+
+
+
