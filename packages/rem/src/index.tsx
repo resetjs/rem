@@ -24,8 +24,8 @@ import rem from './rem';
 
 import './utils/factory';
 import './utils/transforms';
-import './hooks/useHandle';
-import './hooks/useRequest';
+import useHandle from './hooks/useHandle';
+import useRequest from './hooks/useRequest';
 
 import './index.less';
 
@@ -49,6 +49,11 @@ export type {
     PageLayoutProps,
     ElementProps,
 };
+
+export {
+    useHandle,
+    useRequest,
+}
 
 export {
     ElementContainer,

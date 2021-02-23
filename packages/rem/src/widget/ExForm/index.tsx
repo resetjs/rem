@@ -1,18 +1,22 @@
 import React, {Fragment, useEffect, useRef, useState} from 'react';
-import ProForm, {ProFormProps} from '@ant-design/pro-form';
+import type {ProFormProps} from '@ant-design/pro-form';
+import ProForm from '@ant-design/pro-form';
 import {Button, Form, Menu, message, Radio, Space, Steps, Tabs} from 'antd';
 import useHandle from '../../hooks/useHandle';
-import {RequestOptions, ResponseResult} from '../../interface';
-import ExModal, {ExModalProps} from '../ExModal';
-import Factory, {FormField} from '../../utils/factory';
+import type {RequestOptions, ResponseResult} from '../../interface';
+import type {ExModalProps} from '../ExModal';
+import ExModal from '../ExModal';
+import type {FormField} from '../../utils/factory';
+import Factory from '../../utils/factory';
 import {formatToArray, parseCol} from '../../utils/transforms';
-import {FloatActionType} from '../../layouts/FloatLayout';
+import type {FloatActionType} from '../../layouts/FloatLayout';
 import {formatUploadValue, parseUploadValue} from '../ExUpload';
-import Manual, {ManualProps} from '../Manual';
+import type {ManualProps} from '../Manual';
+import Manual from '../Manual';
 import {cloneDeep, isArray, isEmpty} from 'lodash';
 
 import './index.less';
-import { useHistory } from 'react-router-dom';
+import {useHistory} from 'react-router-dom';
 
 const {TabPane} = Tabs;
 
@@ -25,7 +29,7 @@ interface ExFormGroupField {
     fieldProps?: any
     //  表单成员集
     children?: FormField[]
-    //提交
+    // 提交
     onSubmit?: (onHandle: (params: RequestOptions) => Promise<ResponseResult>, values?: any) => Promise<boolean>
     // 容器样式
     style?: any
@@ -88,7 +92,7 @@ export interface ExFormProps extends ProFormProps {
     manual?: ManualProps
 }
 
-type FormFieldType = { [key: string]: FormField }
+type FormFieldType = Record<string, FormField>
 
 const ExForm = (props: ExFormProps) => {
 
@@ -107,7 +111,10 @@ const ExForm = (props: ExFormProps) => {
     const [current, setCurrent] = useState(0);
     const [form] = Form.useForm();
 
-    const formLayout = read ? 'horizontal' : mode === 'page' ? 'vertical' : layout || 'horizontal';
+    let formLayout = mode === 'page' ? 'vertical' : layout || 'horizontal'
+    if (read) {
+        formLayout = 'horizontal';
+    }
 
     const formProps: ProFormProps = {
         form: userForm || form,
@@ -122,39 +129,57 @@ const ExForm = (props: ExFormProps) => {
 
     useEffect(() => {
         if ((mode === 'page' || visible) && !read) {
-            let temp: any = {};
+            const temp: any = {};
             if (group) {
-                validGroups.map((item: any) => {
+                validGroups.forEach((item: any) => {
                     if (item.children && isArray(item.children)) {
-                        item.children.forEach((item: any) => temp[item.key] = item);
+                        item.children.forEach((childItem: any) => {
+                            temp[item.key] = childItem
+                        });
                     }
                 });
             } else if (formFields && formFields.length > 0) {
-                formFields.forEach(item => temp[item.key] = item);
+                formFields.forEach(item => {
+                    temp[item.key] = item
+                })
             }
             fieldsRef.current = temp;
             formProps.form?.resetFields();
             group?.onChange?.(validGroups[0] && validGroups[0].key, validGroups[0]);
             if (initialValues) {
-                for (let key in initialValues) {
+                Object.keys(initialValues).forEach(key => {
+                    if (fieldsRef.current.hasOwnProperty(key)) {
+                        const field = fieldsRef.current[key];
+                        const value = initialValues[key];
 
-                    if (!fieldsRef.current.hasOwnProperty(key)) continue;
-                    const field = fieldsRef.current[key];
-                    const value = initialValues[key];
+                        if (field.componentName === 'Upload' && !isEmpty(value)) {
+                            initialValues[key] = formatUploadValue(value);
 
-                    if (field.componentName === 'Upload' && !isEmpty(value)) {
-                        initialValues[key] = formatUploadValue(value);
-
-                    } else if ((field.componentName === 'Select' && field.componentProps?.mode === 'multiple') || field.componentName === 'Cascader') {
-                        initialValues[key] = formatToArray(value);
+                        } else if ((field.componentName === 'Select' && field.componentProps?.mode === 'multiple') || field.componentName === 'Cascader') {
+                            initialValues[key] = formatToArray(value);
+                        }
                     }
-                }
+                })
+
                 formProps.form?.setFieldsValue(initialValues);
             }
         } else if (!visible && mode !== 'page') {
             setCurrent(0);
         }
     }, [visible, initialValues, read]);
+
+    const transformSubmitValues = (values: any) => {
+        const newValues = cloneDeep(values);
+        Object.keys(fieldsRef.current).forEach(key => {
+            const field = fieldsRef.current[key];
+            if (typeof field.transform === 'function') {
+                newValues[key] = field.transform(values[key]);
+            } else if (field.componentName === 'Upload' && !field.transform) {
+                newValues[key] = parseUploadValue(values[key]);
+            }
+        })
+        return newValues;
+    };
 
     const handleSubmit = () => {
         formProps.form?.validateFields()
@@ -174,18 +199,6 @@ const ExForm = (props: ExFormProps) => {
         formProps.form?.resetFields();
     }
 
-    const transformSubmitValues = (values: any) => {
-        let newValues = cloneDeep(values);
-        for (let key in fieldsRef.current) {
-            const field = fieldsRef.current[key];
-            if (typeof field.transform === 'function') {
-                newValues[key] = field.transform(values[key]);
-            } else if (field.componentName === 'Upload' && !field.transform) {
-                newValues[key] = parseUploadValue(values[key]);
-            }
-        }
-        return newValues;
-    };
 
     const defaultModalProps: ExModalProps = {
         visible,
@@ -193,7 +206,6 @@ const ExForm = (props: ExFormProps) => {
         confirmLoading: isLoading,
         onClose,
         openid,
-        bodyStyle: {padding: 0},
     };
 
     if (read) defaultModalProps.footer = false;
@@ -278,15 +290,15 @@ const ExForm = (props: ExFormProps) => {
         });
     };
 
-    const renderGroupMode = () => {
-        if (!group || group?.hideIndicator) return;
-        let dom;
+    const renderGroupMode = (): React.ReactNode | void => {
+        let dom = null;
+        if (!group || group?.hideIndicator) return dom;
         switch (group.mode) {
             case 'sideMenu':
                 dom = <Menu className={'rem-form-menu'}
                             mode='inline'
                             onClick={e => {
-                                let temp = parseInt(e.key.toString());
+                                const temp = parseInt(e.key.toString(), 10);
                                 setCurrent(temp);
                                 group.onChange?.(validGroups[temp].key, validGroups[temp]);
                             }}
@@ -308,7 +320,7 @@ const ExForm = (props: ExFormProps) => {
                     <div className={'rem-form-radio'}>
                         <Radio.Group
                             onChange={e => {
-                                let temp = parseInt(e.target.value);
+                                const temp = parseInt(e.target.value, 10);
                                 setCurrent(temp);
                                 group.onChange?.(validGroups[temp].key, validGroups[temp]);
                             }}
@@ -330,13 +342,15 @@ const ExForm = (props: ExFormProps) => {
                         tabPosition='left'
                         activeKey={current.toString()}
                         onChange={key => {
-                            let temp = parseInt(key);
+                            const temp = parseInt(key, 10);
                             setCurrent(temp);
                             group.onChange?.(validGroups[temp].key, validGroups[temp]);
                         }}  {...group?.modeProps}>
                         {validGroups.map((item, index) => <TabPane key={`${index}`} tab={item.label}/>)}
                     </Tabs>
                 );
+                break;
+            default:
                 break;
         }
         return dom;
@@ -388,13 +402,14 @@ const ExForm = (props: ExFormProps) => {
             {renderFooter}
         </>;
 
-    switch (mode) {
-        case 'modal':
-            return <ExModal {...defaultModalProps} {...modeProps}>{renderContent}</ExModal>;
-        case 'page':
-            return <div className={'rem-form-container'}>{renderContent}</div>;
+    if (mode === 'modal') {
+        return <ExModal {...defaultModalProps} {...modeProps}>{renderContent}</ExModal>;
+    }
+    if (mode === 'page') {
+        return <div className={'rem-form-container'}>{renderContent}</div>;
     }
     return <Fragment/>;
+
 
 };
 
