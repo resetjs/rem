@@ -1,23 +1,21 @@
 import React from 'react';
 import { Form, TreeSelect } from 'antd';
-import { TreeSelectProps } from 'antd/lib/tree-select';
-import { BaseFieldType, IRequest } from '../../interface';
+import type { TreeSelectProps } from 'antd/lib/tree-select';
+import type { BaseFieldType, IRequest } from '../../interface';
 import useRequest from '../../hooks/useRequest';
 import { transformDatas } from '../../utils/transforms';
 import rem from '../../rem';
 
-
 export interface ExTreeSelectProps<T = any> extends TreeSelectProps<any>, IRequest, BaseFieldType {
-  options: [],
-  mode?: 'multiple',
-  formProps?: any
-  rowKey?: string,
-  fieldNames?: { label?: string, value?: string, children?: string }
-  renderField?: (field: T) => React.ReactNode
+  options: [];
+  mode?: 'multiple';
+  formProps?: any;
+  rowKey?: string;
+  fieldNames?: { label?: string; value?: string; children?: string };
+  renderField?: (field: T) => React.ReactNode;
 }
 
 export default function ExTreeSelect(props: ExTreeSelectProps) {
-
   const {
     options,
     valueEnum,
@@ -52,36 +50,47 @@ export default function ExTreeSelect(props: ExTreeSelectProps) {
 
   const getElement = (data: any[], id: string): any => {
     let element;
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.length; i += 1) {
       const item = data[i];
       if (item[valueKey] === id) {
         element = item;
-        return element;
+        break;
       }
       if (item[childrenKey]?.length) {
-        element = getElement(item[childrenKey], id);
-        if (element) {
-          return element;
-        } else {
-          continue;
+        const temp = getElement(item[childrenKey], id);
+        if (temp) {
+          element = temp;
+          break;
         }
       }
     }
+    return element;
   };
 
   const list = fieldNames ? transformDatas(dataSource || options || treeData, fieldNames) : [];
 
   const content = <TreeSelect {...params} {...other} treeData={list} />;
 
-  return read
-    ? readValue
-      ? readValue.toString().split(',').map((value: string, i: number) => {
-        const element = getElement(list, value);
-        return <span>{i > 0 && '，'}{element?.[labelKey]}</span> || '';
-      })
-      : <span>{rem.constants.DEFAULT_VALUE}</span>
-    : formItemProps
-      ? <Form.Item {...formItemProps}>{content}</Form.Item>
-      : content;
+  if (read) {
+    return readValue ? (
+      readValue
+        .toString()
+        .split(',')
+        .map((value: string, i: number) => {
+          const element = getElement(list, value);
+          return (
+            (
+              <span>
+                {i > 0 && '，'}
+                {element?.[labelKey]}
+              </span>
+            ) || ''
+          );
+        })
+    ) : (
+      <span>{rem.constants.DEFAULT_VALUE}</span>
+    );
+  }
 
+  return formItemProps ? <Form.Item {...formItemProps}>{content}</Form.Item> : content;
 }

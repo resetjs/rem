@@ -1,36 +1,41 @@
 import React, { useEffect, useRef, useState } from 'react';
-import ProTable, { ActionType, ProColumns } from '@ant-design/pro-table';
-import FloatLayout, { FloatActionType, FloatType } from '../../layouts/FloatLayout';
-import { CommonResult, IAuthority, RequestOptions } from '../../interface';
+import type { ActionType, ProColumns } from '@ant-design/pro-table';
+import ProTable from '@ant-design/pro-table';
+import type { FloatActionType, FloatType } from '../../layouts/FloatLayout';
+import FloatLayout from '../../layouts/FloatLayout';
+import type { IAuthority, RequestOptions } from '../../interface';
 import { Button, Dropdown, Menu, Space } from 'antd';
-import { ProTableProps } from '@ant-design/pro-table/lib/typing';
-import { ParamsType } from '@ant-design/pro-provider';
-import Factory, { TableField } from '../../utils/factory';
+import type { ProTableProps } from '@ant-design/pro-table/lib/typing';
+import type { ParamsType } from '@ant-design/pro-provider';
+import type { TableField } from '../../utils/factory';
+import Factory from '../../utils/factory';
 import useHandle from '../../hooks/useHandle';
 import ElementContainer from '../../layouts/ElementContainer';
-import { TableAlertProps } from '@ant-design/pro-table/lib/components/Alert';
-import { SearchProps } from 'antd/lib/input';
+import type { TableAlertProps } from '@ant-design/pro-table/lib/components/Alert';
+import type { SearchProps } from 'antd/lib/input';
 import rem from '../../rem';
 
 export interface ExTableProps<T, U extends ParamsType> extends ProTableProps<T, U>, IAuthority {
-  simple?: boolean
-  simpleSearch?: (SearchProps & {
-    name?: string;
-  }) | boolean,
-  actionRef?: React.MutableRefObject<ActionType | undefined>
-  floatRef?: React.MutableRefObject<FloatActionType>,
+  simple?: boolean;
+  simpleSearch?:
+    | (SearchProps & {
+        name?: string;
+      })
+    | boolean;
+  actionRef?: React.MutableRefObject<ActionType | undefined>;
+  floatRef?: React.MutableRefObject<FloatActionType>;
   columnFields: TableField<T>[];
   toolbarFields?: TableField<T>[];
   operationFields?: TableField<T>[];
   alertFields?: TableField<TableAlertProps<T>>[];
-  handleCallback?: (actionRef: React.MutableRefObject<ActionType | undefined>) => void
-  floatDataSource?: FloatType[],
-  selectedRows?: any[],
-  selectedRowKeys?: string[],
+  handleCallback?: (actionRef: React.MutableRefObject<ActionType | undefined>) => void;
+  floatDataSource?: FloatType[];
+  selectedRows?: any[];
+  selectedRowKeys?: string[];
 }
 
 function findFloatComponent(field: TableField, floats: FloatType[]) {
-  if (!!field.floatComponent) {
+  if (field.floatComponent) {
     floats.push({
       component: field.floatComponent,
       openid: field.key,
@@ -40,8 +45,9 @@ function findFloatComponent(field: TableField, floats: FloatType[]) {
   }
 }
 
-export default function ExTable<T extends CommonResult, U extends { [key: string]: any } = {}>(props: ExTableProps<T, U>): JSX.Element {
-
+export default function ExTable<T, U extends Record<string, any> = {}>(
+  props: ExTableProps<T, U>,
+): JSX.Element {
   const {
     simpleSearch,
     rowKey,
@@ -56,13 +62,18 @@ export default function ExTable<T extends CommonResult, U extends { [key: string
     selectedRows: sRows,
     selectedRowKeys,
     search,
+    actionRef: propsActionRef,
+    floatRef: propsFloatRef,
     ...other
   } = props;
 
-  const [advancedSearch, setAdvancedSearch] = useState(false);
+  const defaultActionRef = useRef<ActionType>();
+  const actionRef = propsActionRef || defaultActionRef;
 
-  const floatRef = props.floatRef || useRef<FloatActionType>();
-  const actionRef = props.actionRef || useRef<ActionType>();
+  const defaultFloatRef = useRef<FloatActionType>();
+  const floatRef = defaultFloatRef || defaultActionRef;
+
+  const [advancedSearch, setAdvancedSearch] = useState(false);
 
   const { onHandle } = useHandle();
 
@@ -72,9 +83,23 @@ export default function ExTable<T extends CommonResult, U extends { [key: string
   const [selectedRows, setSelectedRows] = useState<any[]>(sRows || []);
   const [selectedKeys, setSelectedKes] = useState<string[]>(selectedRowKeys || []);
 
+  const defaultHandleCallback = (res: any) => {
+    if (handleCallback) {
+      handleCallback(actionRef);
+    } else {
+      actionRef?.current?.clearSelected?.();
+      actionRef.current?.reload();
+    }
+    return res;
+  };
+
+  const onHandleToRefresh = (opts: RequestOptions) => {
+    return onHandle(opts).then(defaultHandleCallback);
+  };
+
   const transformField = (field: any, entity: any, defaultProps?: any) => {
-    const { componentProps, ...other } = field;
-    const newField = other;
+    const { componentProps, ...rest } = field;
+    const newField = rest;
     newField.componentProps = defaultProps;
     if (field.componentProps && typeof field.componentProps === 'function') {
       newField.componentProps = {
@@ -88,13 +113,14 @@ export default function ExTable<T extends CommonResult, U extends { [key: string
   };
 
   const parseProColumn = (field: TableField): ProColumns => {
-    const { columnsProps, componentName, render, search, valueEnum, authority } = field;
+    const { columnsProps, componentName, render, valueEnum } = field;
     const column: ProColumns = {
       key: field.key,
       title: field.label,
       dataIndex: field.key,
-      search: search,
-      hideInTable: checkAuthority(authority) && field.hasOwnProperty('show') ? !field.show : false,
+      search: field.search,
+      hideInTable:
+        checkAuthority(field.authority) && field.hasOwnProperty('show') ? !field.show : false,
       valueEnum,
       ...columnsProps,
     };
@@ -102,26 +128,14 @@ export default function ExTable<T extends CommonResult, U extends { [key: string
       let current = dom;
       if (componentName) {
         const trigger = (openid: string) => floatRef.current?.open(openid, entity);
-        current = Factory.createField(transformField(field, entity), { optionProps: { trigger, entity } });
+        current = Factory.createField(transformField(field, entity), {
+          optionProps: { trigger, entity },
+        });
       }
       if (render) current = render?.(current, entity, action, floatRef.current!!);
       return current;
     };
     return column;
-  };
-
-  const onHandleToRefresh = (opts: RequestOptions) => {
-    return onHandle(opts).then(defaultHandleCallback);
-  };
-
-  const defaultHandleCallback = (res: any) => {
-    if (handleCallback) {
-      handleCallback(actionRef);
-    } else {
-      actionRef?.current?.clearSelected?.();
-      actionRef.current?.reload();
-    }
-    return res;
   };
 
   const onDropdownVisibleChange = (flag: boolean, index: number) => {
@@ -136,12 +150,12 @@ export default function ExTable<T extends CommonResult, U extends { [key: string
   const [floats, setFloats] = useState<FloatType[]>();
 
   useEffect(() => {
-    const floats = props.floatDataSource || [];
-    columnFields?.map(item => findFloatComponent(item, floats));
-    operationFields?.map(item => findFloatComponent(item, floats));
-    toolbarFields?.map(item => findFloatComponent(item, floats));
-    alertFields?.map(item => findFloatComponent(item, floats));
-    setFloats(floats);
+    const temp = props.floatDataSource || [];
+    columnFields?.map((item) => findFloatComponent(item, temp));
+    operationFields?.map((item) => findFloatComponent(item, temp));
+    toolbarFields?.map((item) => findFloatComponent(item, temp));
+    alertFields?.map((item) => findFloatComponent(item, temp));
+    setFloats(temp);
   }, []);
 
   if (simple) {
@@ -151,7 +165,7 @@ export default function ExTable<T extends CommonResult, U extends { [key: string
   }
 
   if (columnFields && columnFields.length > 0) {
-    const tableColumn = columnFields?.map<ProColumns>(item => parseProColumn(item));
+    const tableColumn = columnFields?.map<ProColumns>((item) => parseProColumn(item));
     if (operationFields && operationFields.length > 0) {
       tableColumn.push({
         title: '操作',
@@ -160,37 +174,51 @@ export default function ExTable<T extends CommonResult, U extends { [key: string
         align: 'center',
         valueType: 'option',
         render: (dom: React.ReactNode, entity: T, index) => {
-          const list = operationFields.map(field => transformField(field, entity, {
-            size: 'small',
-            ghost: 'true',
-            type: 'primary',
-          }));
+          const list = operationFields.map((field) =>
+            transformField(field, entity, {
+              size: 'small',
+              ghost: 'true',
+              type: 'primary',
+            }),
+          );
           const trigger = (openid: string) => floatRef.current?.open(openid, entity);
           let arr: any = [];
           const optionProps = { trigger, entity };
-          if (list.length > 4) {  //  超过3个按钮, 替换更多展开形式
-            for (let i = 0; i < 3; i++) {
+          if (list.length > 4) {
+            //  超过3个按钮, 替换更多展开形式
+            for (let i = 0; i < 3; i += 1) {
               const field = Factory.createField(list[i], { optionProps });
               if (field) arr.push(field);
             }
-            let menus: any = [];
-            for (let i = 3; i < list.length; i++) {
+            const menus: any = [];
+            for (let i = 3; i < list.length; i += 1) {
               const temp = list[i];
               if (temp.componentName === 'Button') {
                 temp.componentProps = { ...temp.componentProps, type: 'link' };
-              } else if (temp.componentName === 'Popconfirm' && temp.componentProps && temp.componentProps.children) {
-                temp.componentProps.children =
-                  <Button {...temp.componentProps} type={'link'} danger>{temp.content}</Button>;
+              } else if (
+                temp.componentName === 'Popconfirm' &&
+                temp.componentProps &&
+                temp.componentProps.children
+              ) {
+                temp.componentProps.children = (
+                  <Button {...temp.componentProps} type={'link'} danger>
+                    {temp.content}
+                  </Button>
+                );
               }
               const field = Factory.createField(temp, { optionProps });
               if (field) menus.push(<Menu.Item key={temp.key}>{field}</Menu.Item>);
             }
             arr.push(
-              <Dropdown key={'action-more'}
-                        visible={index === actionVisibleIndex}
-                        onVisibleChange={(flag) => onDropdownVisibleChange(flag, index)}
-                        overlay={<Menu>{menus}</Menu>}>
-                <Button type={'primary'} size={'small'} ghost>更多</Button>
+              <Dropdown
+                key={'action-more'}
+                visible={index === actionVisibleIndex}
+                onVisibleChange={(flag) => onDropdownVisibleChange(flag, index)}
+                overlay={<Menu>{menus}</Menu>}
+              >
+                <Button type={'primary'} size={'small'} ghost>
+                  更多
+                </Button>
               </Dropdown>,
             );
           } else {
@@ -206,16 +234,20 @@ export default function ExTable<T extends CommonResult, U extends { [key: string
   const showSearch = (!props.hasOwnProperty('search') || props.search) && simpleSearch;
 
   if (simpleSearch) {
-    tableProps.options = { search: !!showSearch ? advancedSearch ? false : simpleSearch : simpleSearch };
+    let temp: any = simpleSearch;
+    if (showSearch) temp = advancedSearch ? false : simpleSearch;
+    tableProps.options = { search: temp };
   }
 
   tableProps.toolBarRender = (action, rows) => {
-    let render: React.ReactNode[] = [];
+    const render: React.ReactNode[] = [];
 
     if (showSearch && !advancedSearch) {
-      render.push(<Button key={'filter'}
-                          type={'link'}
-                          onClick={() => setAdvancedSearch(!advancedSearch)}>开启筛选</Button>);
+      render.push(
+        <Button key={'filter'} type={'link'} onClick={() => setAdvancedSearch(!advancedSearch)}>
+          开启筛选
+        </Button>,
+      );
     }
 
     if (toolBarRender) {
@@ -223,7 +255,7 @@ export default function ExTable<T extends CommonResult, U extends { [key: string
     }
 
     if (toolbarFields) {
-      const list = toolbarFields.map(field => transformField(field, null));
+      const list = toolbarFields.map((field) => transformField(field, null));
       const trigger = (openid: string) => floatRef.current?.open(openid);
       render.push(Factory.createTableFields(list, { trigger }));
     }
@@ -233,45 +265,54 @@ export default function ExTable<T extends CommonResult, U extends { [key: string
   if (alertFields && alertFields?.length > 0) {
     tableProps.rowSelection = {
       selectedRowKeys: selectedKeys,
-      onSelect: (record: any, selected: boolean, rows: T[]) => {
+      onSelect: (record: any, selected: boolean) => {
         const rowKeyId = typeof rowKey === 'string' ? record[rowKey] : 'id';
         if (selected) {
           setSelectedKes([...selectedKeys, record[rowKeyId]]);
           setSelectedRows([...selectedRows, record]);
         } else {
-          let newKeys = selectedKeys.map(value => (record[rowKeyId] === value ? '' : value)).filter(e => e);
-          let newRows = selectedRows.map((item: any) => (record[rowKeyId] === item[rowKeyId] ? '' : item)).filter(e => e);
+          const newKeys = selectedKeys
+            .map((value) => (record[rowKeyId] === value ? '' : value))
+            .filter((e) => e);
+          const newRows = selectedRows
+            .map((item: any) => (record[rowKeyId] === item[rowKeyId] ? '' : item))
+            .filter((e) => e);
           setSelectedKes([...newKeys]);
           setSelectedRows([...newRows]);
         }
       },
-      onSelectAll: (selected: boolean, rows: T[], changeRows: T[]) => {
+      onSelectAll: (selected: boolean, rows: T[]) => {
         const rowKeyId = typeof rowKey === 'string' ? rowKey : 'id';
-        const newRows = rows?.length ? rows.filter(e => e) : [];
+        const newRows = rows?.length ? rows.filter((e) => e) : [];
         setSelectedKes(selected ? newRows.map((item: any) => item[rowKeyId]) : []);
         setSelectedRows(selected ? newRows : []);
       },
     };
     tableProps.tableAlertOptionRender = (entity) => {
-      entity.selectedRows = selectedRows;
-      const list = alertFields?.map(field => transformField(field, entity)) || [];
+      const temp = entity;
+      temp.selectedRows = selectedRows;
+      const list = alertFields?.map((field) => transformField(field, temp)) || [];
       return <Space size={16}>{Factory.createTableFields(list)}</Space>;
     };
   }
 
   const customSearch: any = {
     defaultCollapsed: false,
-    optionRender: (searchConfig: any, props: { form: any }, dom: React.ReactNode[]) => [
+    optionRender: (searchConfig: any, _props: { form: any }, dom: React.ReactNode[]) => [
       ...dom,
-      <Button type={'link'} key='close' onClick={() => setAdvancedSearch(false)}>关闭筛选</Button>,
+      <Button type={'link'} key="close" onClick={() => setAdvancedSearch(false)}>
+        关闭筛选
+      </Button>,
     ],
   };
 
+  let tableSearchRender = search;
+  if (showSearch) tableSearchRender = advancedSearch ? customSearch : false;
+
   return (
     <ElementContainer authority={props.authority} showNoMatch={true}>
-      <ProTable<T, U> {...tableProps} {...other} search={showSearch ? advancedSearch ? customSearch : false : search} />
+      <ProTable<T, U> {...tableProps} {...other} search={tableSearchRender} />
       <FloatLayout floatRef={floatRef} handleCallback={defaultHandleCallback} dataSource={floats} />
     </ElementContainer>
   );
-
 }

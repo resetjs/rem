@@ -1,18 +1,21 @@
 import React from 'react';
 import { Form, Switch } from 'antd';
-import { BaseFieldType } from '../../interface';
+import type { BaseFieldType } from '../../interface';
 
-interface ExSwitchProps extends BaseFieldType {
-
-}
+type ExSwitchProps = BaseFieldType;
 
 export default function ExSwitch(props: ExSwitchProps) {
-
   const { read, readValue, formItemProps, valueEnum, ...other } = props;
 
-  return read
-    ? <span>{readValue ? '是' : '否'}</span>
-    : formItemProps
-      ? <Form.Item valuePropName='checked' {...formItemProps}><Switch {...other} /></Form.Item>
-      : <Switch {...other} />;
+  if (read) {
+    return <span>{readValue ? '是' : '否'}</span>;
+  }
+
+  return formItemProps ? (
+    <Form.Item valuePropName="checked" {...formItemProps}>
+      <Switch {...other} />
+    </Form.Item>
+  ) : (
+    <Switch {...other} />
+  );
 }

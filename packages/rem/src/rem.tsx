@@ -1,56 +1,63 @@
-import type { AuthorityRule, RequestOptions, ResponseResult } from './interface';
+import type { RequestOptions } from './interface';
 import React from 'react';
 import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/lib/interface';
 import { Result } from 'antd';
 import umiRequest from 'umi-request';
+import type { AuthorityRule } from './interface';
+
+type PermissionType = {
+  checkAuthority: (authority: string | string[] | AuthorityRule | undefined) => boolean;
+  errorPage: React.ReactNode;
+};
+
+type ConstantsType = {
+  DEFAULT_VALUE: string | '-';
+};
 
 export interface RemConfig {
+  permission?: PermissionType;
 
-  permission?: {
-    checkAuthority: (authority: string | string[] | AuthorityRule | undefined) => boolean
-    errorPage?: React.ReactNode;
-  }
+  request?: <T>(options: RequestOptions) => Promise<T>;
 
-  request?: (options: RequestOptions) => Promise<ResponseResult>
+  uploadFile?: (options: RcCustomRequestOptions) => void;
 
-  uploadFile?: (options: RcCustomRequestOptions) => void
-
-  constants?: {
-    DEFAULT_VALUE?: string
-  }
+  constants?: ConstantsType;
 }
 
 class Rem {
-
-  constants: any = {
+  constants: ConstantsType = {
     DEFAULT_VALUE: '-',
   };
 
-  permission: any = {
-    checkAuthority: () => {
+  permission: PermissionType = {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    checkAuthority: (authority?: string | string[] | AuthorityRule | undefined) => {
       return true;
     },
-    errorPage: <Result status='403' title='403' subTitle='Sorry, you are not authorized to access this page.' />,
+    errorPage: (
+      <Result
+        status="403"
+        title="403"
+        subTitle="Sorry, you are not authorized to access this page."
+      />
+    ),
   };
 
-  request: any = (options: RequestOptions): Promise<ResponseResult> => {
+  request<T>(options: RequestOptions): Promise<T> {
     const { url, ...other } = options;
     return umiRequest(url, other);
-  };
-
-  uploadFile: any = (options: RcCustomRequestOptions) => {
-  };
-
-  applyPlugins(config?: RemConfig) {
-    if (config) {
-      const { constants, permission, request, uploadFile } = config;
-      this.constants = constants;
-      this.permission = permission;
-      this.request = request;
-      this.uploadFile = uploadFile;
-    }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  uploadFile(options: RcCustomRequestOptions): void {}
+
+  applyPlugins(config: RemConfig) {
+    const { constants, permission, request, uploadFile } = config;
+    if (constants) this.constants = constants;
+    if (permission) this.permission = permission;
+    if (request) this.request = request;
+    if (uploadFile) this.uploadFile = uploadFile;
+  }
 }
 
 const rem = new Rem();

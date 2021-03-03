@@ -1,23 +1,19 @@
 import { useState } from 'react';
 import rem from '../rem';
-import { RequestOptions } from '../interface';
+import type { RequestOptions } from '../interface';
 
 export default function useHandle() {
-
   const [isLoading, setLoading] = useState<boolean>();
 
-  const onHandle = async (options: RequestOptions) => {
-
-    const { url, data, method, params } = options;
+  const onHandle = async <T>(options: RequestOptions) => {
     setLoading(true);
-
+    const { callback, trigger, ...rest } = options;
     try {
-      return await rem.request(options);
+      const res = await rem.request<T>(rest);
+      return callback?.(res) || res;
     } finally {
       setLoading(false);
     }
   };
-
   return { isLoading, onHandle };
-
 }

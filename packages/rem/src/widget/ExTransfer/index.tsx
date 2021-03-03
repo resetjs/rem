@@ -1,23 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Table, Transfer } from 'antd';
-import { TransferProps } from 'antd/lib/transfer';
+import type { TransferProps } from 'antd/lib/transfer';
 import difference from 'lodash/difference';
-import { ColumnsType } from 'antd/lib/table/interface';
-import { BaseFieldType, IRequest } from '../../interface';
+import type { ColumnsType } from 'antd/lib/table/interface';
+import type { BaseFieldType, IRequest } from '../../interface';
 import useRequest from '../../hooks/useRequest';
 import rem from '../../rem';
 
-
 export interface ExTransferProps<T = any> extends TransferProps<T>, IRequest, BaseFieldType {
-  onChange: (nextTargetKeys: string[]) => void
-  formProps?: any
-  mode?: 'tree',
-  fieldNames?: { label?: string, value?: string, children?: string }
-  columns?: ColumnsType
+  onChange: (nextTargetKeys: string[]) => void;
+  formProps?: any;
+  mode?: 'tree';
+  fieldNames?: { label?: string; value?: string; children?: string };
+  columns?: ColumnsType;
 }
 
 export default function ExTransfer(props: ExTransferProps) {
-
   const { style, mode, read, readValue, formItemProps, fieldNames, columns } = props;
 
   const { dataSource } = useRequest(props.request);
@@ -36,7 +34,7 @@ export default function ExTransfer(props: ExTransferProps) {
   const transferDataSource: any[] = [];
 
   function flatten(list: any[]) {
-    list?.forEach(item => {
+    list?.forEach((item) => {
       transferDataSource.push(item);
       flatten(item.children);
     });
@@ -47,7 +45,6 @@ export default function ExTransfer(props: ExTransferProps) {
   const params = {
     titles: ['未选择', '已选择'],
     showSearch: true,
-    //pagination: true,
     dataSource: transferDataSource,
     listStyle: { height: 540, width: 300 },
     render: (item: any) => item.label,
@@ -59,13 +56,20 @@ export default function ExTransfer(props: ExTransferProps) {
       if (props.onChange) props.onChange(nextTargetKeys);
     },
     selectedKeys,
-    onSelectChange: (sourceSelectedKeys: string[], targetSelectedKeys: string[]) => setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]),
+    onSelectChange: (sourceSelectedKeys: string[], targetSelectedKeys: string[]) =>
+      setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]),
   };
 
-  const content = mode === 'tree'
-    ? (
+  const content =
+    mode === 'tree' ? (
       <Transfer {...params}>
-        {({ direction, filteredItems, onItemSelect, onItemSelectAll, selectedKeys: listSelectedKeys, render }) => {
+        {({
+          direction,
+          filteredItems,
+          onItemSelect,
+          onItemSelectAll,
+          selectedKeys: listSelectedKeys,
+        }) => {
           const tableProps: any = {};
           const rowSelection = {
             getCheckboxProps: (item: any) => {
@@ -92,10 +96,10 @@ export default function ExTransfer(props: ExTransferProps) {
               defaultExpandAllRows: true,
             };
           } else if (direction === 'right') {
-            tableProps.dataSource = filteredItems.map(((item: any) => {
+            tableProps.dataSource = filteredItems.map((item: any) => {
               const { children, ...other } = item;
               return other;
-            }));
+            });
           }
 
           return (
@@ -105,7 +109,7 @@ export default function ExTransfer(props: ExTransferProps) {
               showHeader={false}
               rowSelection={rowSelection}
               columns={columns || [{ dataIndex: 'label' }]}
-              size='small'
+              size="small"
               rowKey={'value'}
               onRow={({ key, disabled: itemDisabled }) => ({
                 onClick: () => {
@@ -117,14 +121,15 @@ export default function ExTransfer(props: ExTransferProps) {
           );
         }}
       </Transfer>
-    )
-    : <Transfer {...params} />;
+    ) : (
+      <Transfer {...params} />
+    );
 
   useEffect(() => {
     if (readValue && readValue.length > 0) {
-      let arr: string[] = [];
+      const arr: string[] = [];
       readValue?.forEach((key: string) => {
-        transferDataSource.find((item: any) => {
+        transferDataSource.forEach((item: any) => {
           const label = item[fieldNames?.label || 'label'];
           const value = item[fieldNames?.value || 'value'];
           if (value === key) arr.push(label);
@@ -134,11 +139,9 @@ export default function ExTransfer(props: ExTransferProps) {
     }
   }, [readValue]);
 
-  return read
-    ? readValue
-      ? <span>{formatReadValue}</span>
-      : <span>{defaultValue}</span>
-    : formItemProps
-      ? <Form.Item {...formItemProps}>{content}</Form.Item>
-      : content;
+  if (read) {
+    return readValue ? <span>{formatReadValue}</span> : <span>{defaultValue}</span>;
+  }
+
+  return formItemProps ? <Form.Item {...formItemProps}>{content}</Form.Item> : content;
 }
