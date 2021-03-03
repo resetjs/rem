@@ -122,9 +122,5 @@
     "xhr-mock": "^2.5.1",
     "yorkie": "^2.0.0"
   },
-  "gitHooks": {
-    "pre-commit": "pretty-quick --staged",
-    "commit-msg": "node scripts/verifyCommit.js"
-  },
   "size-limit": []
 }
