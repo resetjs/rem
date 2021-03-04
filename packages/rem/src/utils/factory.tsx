@@ -249,6 +249,4 @@ class Factory {
     }
 }
 
-export {FormField, TableField, Field};
-
 export default Factory;
