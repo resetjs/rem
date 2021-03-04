@@ -231,6 +231,7 @@ const ExForm = (props: ExFormProps) => {
     confirmLoading: isLoading,
     onClose,
     openid,
+    bodyStyle: {padding: 0},
   };
 
   if (read) defaultModalProps.footer = false;

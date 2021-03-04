@@ -33,9 +33,10 @@ export default function ExInputText(props: ExInputTextProps) {
       {readValue ? (
         <div
           style={{
-            overflow: 'hidden',
+            width: '95%',
+            overflow: 'auto',
             wordWrap: 'break-word',
-            overflowWrap: 'break-word',
+            overflowWrap: 'anywhere'
           }}
         >
           {typeof suffix === 'string' && prefix}

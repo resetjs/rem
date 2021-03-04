@@ -15,7 +15,6 @@ import type { SearchProps } from 'antd/lib/input';
 import rem from '../../rem';
 
 export interface ExTableProps<T, U extends ParamsType> extends ProTableProps<T, U>, IAuthority {
-  simple?: boolean;
   simpleSearch?:
     | (SearchProps & {
         name?: string;
@@ -56,7 +55,6 @@ export default function ExTable<T, U extends Record<string, any> = {}>(
     toolbarFields,
     alertFields,
     operationFields,
-    simple,
     toolBarRender,
     selectedRows: sRows,
     selectedRowKeys,
@@ -156,12 +154,6 @@ export default function ExTable<T, U extends Record<string, any> = {}>(
     alertFields?.map((item) => findFloatComponent(item, temp));
     setFloats(temp);
   }, []);
-
-  if (simple) {
-    tableProps.size = 'small';
-    tableProps.options = false;
-    tableProps.search = false;
-  }
 
   if (columnFields && columnFields.length > 0) {
     const tableColumn = columnFields?.map<ProColumns>((item) => parseProColumn(item));

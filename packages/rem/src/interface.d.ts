@@ -21,7 +21,7 @@ interface IRequest {
 
 interface ProFieldRequestListData {
   label: React.ReactNode;
-  value: React.ReactText;
+  value: React.ReactText | Boolean;
   children?: ProFieldRequestListData[];
 
   [key: string]: any;
