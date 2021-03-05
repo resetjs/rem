@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { findDataType } from './utils';
 
 function transformTarget(
   targets: { dataSource: any; options: any; valueEnum: any },
@@ -37,20 +38,24 @@ function transformDatas(
   fieldNames?: { value?: string; label?: string; children?: string; labelKey?: string },
   suffix?: string,
 ) {
-  if (!list || !list.length) return [];
+  if (!list || !list.length) return []
   return list.map((item: any) => {
+
+    const label = item[fieldNames?.label || 'label'] || item['name']
+
     const format: any = {
       value: item[fieldNames?.value || 'value'],
-      [fieldNames?.labelKey || 'label']:
-        String(item[fieldNames?.label || 'label']) + (suffix || ''),
+      [fieldNames?.labelKey || 'label']: findDataType(label) === 'object'? label : String(label) + (suffix || ''),
       disabled: item.disabled,
-    };
+    }
+
     const children = item[fieldNames?.children || 'children'];
     if (children) {
       format.children = transformDatas(children, fieldNames);
     }
-    return format;
-  });
+
+    return format
+  })
 }
 
 function parseCol(label: number | string = 24, wrapper: number | string = 24) {

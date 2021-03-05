@@ -155,7 +155,7 @@ const ExForm = (props: ExFormProps) => {
         validGroups.forEach((item: any) => {
           if (item.children && isArray(item.children)) {
             item.children.forEach((childItem: any) => {
-              temp[item.key] = childItem;
+              temp[childItem.key] = childItem;
             });
           }
         });
