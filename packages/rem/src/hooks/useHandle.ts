@@ -10,7 +10,7 @@ export default function useHandle() {
     const { callback, trigger, ...rest } = options;
     try {
       const res = await rem.request<T>(rest);
-      return callback?.(res) || res;
+      return callback ? callback(res) : res;
     } finally {
       setLoading(false);
     }

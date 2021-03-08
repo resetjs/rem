@@ -27,9 +27,11 @@ function parseValueEnum(list: any[], labelKey: any, valueKey: any) {
 
 function objectToArray(valueEnum: object) {
   const list: { label: any; value: string }[] = [];
-  Object.keys(valueEnum).forEach((key) => {
-    list.push({ label: valueEnum[key], value: key });
-  });
+  if(valueEnum) {
+    Object.keys(valueEnum).forEach((key) => {
+      list.push({ label: valueEnum[key], value: key });
+    });
+  }
   return list;
 }
 
