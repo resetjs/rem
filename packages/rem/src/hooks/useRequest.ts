@@ -1,7 +1,7 @@
 import type { RequestOptions } from '../interface';
 import useHandle from './useHandle';
 import { useEffect, useRef, useState } from 'react';
-import { isEqual } from 'lodash';
+import isEqual  from 'lodash/isEqual';
 
 export default function useRequest<T = any>(options?: RequestOptions) {
   const { onHandle, isLoading } = useHandle();

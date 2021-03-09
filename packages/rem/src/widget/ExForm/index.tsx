@@ -7,12 +7,12 @@ import type {FormField, RequestOptions } from '../../interface';
 import type { ExModalProps } from '../ExModal';
 import ExModal from '../ExModal';
 import Factory from '../../utils/factory';
-import { formatToArray, parseCol } from '../../utils/transforms';
+import { formatToArray, parseCol, formatUploadValue, parseUploadValue } from '../../utils/transforms';
 import type { FloatActionType } from '../../layouts/FloatLayout';
-import { formatUploadValue, parseUploadValue } from '../ExUpload';
 import type { ManualProps } from '../Manual';
 import Manual from '../Manual';
-import { cloneDeep, isArray, isEmpty } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
+import isArray from 'lodash/isArray';
 
 import './index.less';
 import { useHistory } from 'react-router-dom';
@@ -192,7 +192,7 @@ const ExForm = (props: ExFormProps) => {
   }, [visible, initialValues, read]);
 
   const transformSubmitValues = (values: any) => {
-    const newValues = cloneDeep(values);
+    const newValues = {...values};
     Object.keys(fieldsRef.current).forEach((key) => {
       const field = fieldsRef.current[key];
       if (typeof field.transform === 'function') {

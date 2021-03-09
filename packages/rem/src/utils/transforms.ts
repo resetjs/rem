@@ -90,7 +90,35 @@ function formatMoment(obj: any, options?: { format?: string; extra?: string }) {
   return null;
 }
 
+function formatUploadValue(values: string | string[]) {
+  let temp: any[] = []
+  if (values) {
+    if (Array.isArray(values)) {
+      temp = values?.map((url, position) =>
+          typeof url === 'string'
+              ? {uid: position, name: url.substring(url.lastIndexOf('/') + 1), status: 'done', url}
+              : url,
+      );
+    } else {
+      temp = [{uid: '-1', name: values.substring(values.lastIndexOf('/') + 1), status: 'done', url: values}];
+    }
+  }
+  return temp;
+}
+
+function parseUploadValue(values: any | string[]) {
+  if (values && Array.isArray(values)) {
+    return values
+        .filter((item) => item.status && item.status === 'done')
+        .map((item) => item.url || item.response)
+        .join(',');
+  }
+  return values?.status === 'done' ? values.url || values.response : values;
+}
+
 export {
+  parseUploadValue,
+  formatUploadValue,
   parseValueEnum,
   transformDatas,
   parseCol,

@@ -6,8 +6,7 @@
   ],
   "scripts": {
     "bootstrap": "node ./scripts/bootstrap.js",
-    "build": "father-build && webpack",
-    "build:webpack": "webpack",
+    "build": "father-build && webpack-cli",
     "changelog": "pro-changelog",
     "createRelease": "node ./scripts/createRelease.js",
     "deploy": "npm run site && gh-pages -d ./dist",

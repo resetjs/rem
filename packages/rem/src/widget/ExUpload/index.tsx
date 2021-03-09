@@ -7,35 +7,9 @@ import type {BaseFieldType} from '../../interface';
 
 import './index.less';
 
-export function formatUploadValue(values: string | string[]) {
-    let temp: any[] = []
-    if (values) {
-        if (Array.isArray(values)) {
-            temp = values?.map((url, position) =>
-                typeof url === 'string'
-                    ? {uid: position, name: url.substring(url.lastIndexOf('/') + 1), status: 'done', url}
-                    : url,
-            );
-        } else {
-            temp = [{uid: '-1', name: values.substring(values.lastIndexOf('/') + 1), status: 'done', url: values}];
-        }
-    }
-    return temp;
-}
-
-export function parseUploadValue(values: any | string[]) {
-    if (values && Array.isArray(values)) {
-        return values
-            .filter((item) => item.status && item.status === 'done')
-            .map((item) => item.url || item.response)
-            .join(',');
-    }
-    return values?.status === 'done' ? values.url || values.response : values;
-}
-
 export declare type UploadMode = 'file' | 'image' | 'video' | 'voice';
 
-export interface ExUploadProps extends BaseFieldType {
+export interface ExUploadProps extends UploadProps, BaseFieldType {
     mode?: UploadMode; // 图片/文件
     max?: number; // 总数
     maxSize?: number; // 能上传的最大值 / 单位 M
@@ -46,15 +20,11 @@ export interface ExUploadProps extends BaseFieldType {
     hideFileList?: boolean | undefined; // 是否显示文件列表
 }
 
-export interface ExTransferProps extends UploadProps, ExUploadProps {
-    children?: JSX.Element;
-}
-
 function normFile(e: any) {
     return Array.isArray(e) ? e : e && e.fileList;
 }
 
-export default function ExUpload(props: ExTransferProps) {
+export default function ExUpload(props: ExUploadProps) {
     const {formItemProps, type, read, readValue, style, className, ...other} = props;
 
     const formItemContent = (

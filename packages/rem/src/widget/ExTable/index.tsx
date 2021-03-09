@@ -43,7 +43,7 @@ function findFloatComponent(field: TableField, floats: FloatType[]) {
     }
 }
 
-const ExTable = <T extends Record<string, any>, U extends ParamsType = {}, ValueType = 'text'> (props: ExTableProps<T, U, ValueType> & { defaultClassName: string; },
+const ExTable = <T extends Record<string, any>, U extends ParamsType = {}, ValueType = 'text'>(props: ExTableProps<T, U, ValueType> & { defaultClassName: string; },
 ) => {
     const {
         simpleSearch,
@@ -138,7 +138,7 @@ const ExTable = <T extends Record<string, any>, U extends ParamsType = {}, Value
         setActionVisibleIndex(flag ? index : -1);
     };
 
-    const tableProps: ProTableProps<T, U> = {
+    const tableProps: ProTableProps<T, U, ValueType> = {
         rowKey: rowKey || 'id',
         actionRef,
     };

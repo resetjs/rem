@@ -38,11 +38,8 @@ export default function ExDatePicker(props: ExDatePickerProps & DatePickerProps)
         );
 
       case 'DateTimeRangePicker':
-        return formItemProps ? (
-          <ProFormDateTimeRangePicker {...formItemProps} fieldProps={other} />
-        ) : (
-          <DatePicker {...other} />
-        );
+        // @ts-ignore
+        return formItemProps ? <ProFormDateTimeRangePicker {...formItemProps} fieldProps={other} /> : <DatePicker {...other} />;
 
       case 'DateTimePicker':
         return formItemProps ? (
