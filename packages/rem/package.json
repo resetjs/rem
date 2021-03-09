@@ -1,6 +1,6 @@
 {
   "name": "@resetjs/rem",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "🧊 REM provides you with powerful support!",
   "keywords": [
     "antd",
@@ -42,8 +42,8 @@
     "@ant-design/pro-table": "2.30.4",
     "@ant-design/pro-utils": "1.14.0",
     "classnames": "^2.2.6",
-    "moment": "^2.24.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "moment": "^2.24.0"
   },
   "devDependencies": {
     "@types/classnames": "^2.2.11",
