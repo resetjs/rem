@@ -173,7 +173,7 @@ const ExForm = (props: ExFormProps) => {
             const field = fieldsRef.current[key];
             const value = initialValues[key];
 
-            if (field.componentName === 'Upload' && !isEmpty(value)) {
+            if (field.componentName === 'Upload') {
               initialValues[key] = formatUploadValue(value);
             } else if (
               (field.componentName === 'Select' && field.componentProps?.mode === 'multiple') ||

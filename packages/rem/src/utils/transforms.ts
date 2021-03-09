@@ -68,10 +68,10 @@ function parseCol(label: number | string = 24, wrapper: number | string = 24) {
 }
 
 function formatToArray(value: any, separator = ',') {
-  if (typeof value === 'string') {
+  if (value && typeof value === 'string') {
     return value.split(separator);
   }
-  if (Object.prototype.toString.call(value) === '[object Array]') {
+  if (value && Object.prototype.toString.call(value) === '[object Array]') {
     return value;
   }
   return undefined;
