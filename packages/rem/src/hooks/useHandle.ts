@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import rem from '../rem';
+import getRem from '../rem';
 import type { RequestOptions } from '../interface';
 
 export default function useHandle() {
@@ -9,7 +9,7 @@ export default function useHandle() {
     setLoading(true);
     const { callback, trigger, ...rest } = options;
     try {
-      const res = await rem.request<T>(rest);
+      const res = await getRem().request<T>(rest);
       return callback ? callback(res) : res;
     } finally {
       setLoading(false);

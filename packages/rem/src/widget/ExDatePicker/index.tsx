@@ -10,7 +10,7 @@ import {
 import { DatePicker, TimePicker } from 'antd';
 import type { DatePickerProps } from 'antd/lib/date-picker';
 import { formatMoment } from '../../utils/transforms';
-import rem from '../../rem';
+import getRemfrom '../../rem';
 
 interface ExDatePickerProps extends BaseFieldType {
   type?: 'DatePicker' | 'DateRangePicker' | 'TimePicker' | 'DateTimeRangePicker' | 'DateTimePicker';
@@ -62,7 +62,7 @@ export default function ExDatePicker(props: ExDatePickerProps & DatePickerProps)
       {readValue ? (
         <div>{formatMoment(readValue, { format, extra: '' })}</div>
       ) : (
-        rem.constants.DEFAULT_VALUE
+        getRem().constants.DEFAULT_VALUE
       )}
     </>
   ) : (

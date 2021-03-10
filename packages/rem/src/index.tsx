@@ -36,7 +36,7 @@ import FloatLayout from './layouts/FloatLayout';
 import type {PageLayoutProps} from './layouts/PageLayout';
 import PageLayout from './layouts/PageLayout';
 
-import rem from './rem';
+import rem, {Rem} from './rem';
 
 import './utils/factory';
 import './utils/transforms';
@@ -65,7 +65,7 @@ export type {
     ElementProps,
 };
 
-export {useHandle, useRequest};
+export {useHandle, useRequest, Rem};
 
 export {
     ElementContainer,

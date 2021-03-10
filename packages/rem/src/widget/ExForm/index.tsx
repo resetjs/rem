@@ -11,7 +11,6 @@ import { formatToArray, parseCol, formatUploadValue, parseUploadValue } from '..
 import type { FloatActionType } from '../../layouts/FloatLayout';
 import type { ManualProps } from '../Manual';
 import Manual from '../Manual';
-import cloneDeep from 'lodash/cloneDeep';
 import isArray from 'lodash/isArray';
 
 import './index.less';
