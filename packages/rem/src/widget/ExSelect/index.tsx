@@ -4,7 +4,7 @@ import useRequest from '../../hooks/useRequest';
 import { Form, Select } from 'antd';
 import type { SelectProps } from 'antd/lib/select';
 import { transformTarget } from '../../utils/transforms';
-import getRemfrom '../../rem';
+import getRem from '../../rem';
 
 interface ExSelectProps extends IRequest, SelectProps<any>, BaseFieldType {
   suffix?: string;

@@ -5,7 +5,7 @@ import difference from 'lodash/difference';
 import type { ColumnsType } from 'antd/lib/table/interface';
 import type { BaseFieldType, IRequest } from '../../interface';
 import useRequest from '../../hooks/useRequest';
-import getRemfrom '../../rem';
+import getRem from '../../rem';
 
 export interface ExTransferProps<T = any> extends TransferProps<T>, IRequest, BaseFieldType {
   onChange: (nextTargetKeys: string[]) => void;

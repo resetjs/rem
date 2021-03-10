@@ -6,7 +6,7 @@ import useRequest from '../../hooks/useRequest';
 import type {BaseFieldType, IRequest} from '../../interface';
 import type {RadioGroupProps} from 'antd/lib/radio/interface';
 import {transformTarget} from '../../utils/transforms';
-import getRemfrom '../../rem';
+import getRem from '../../rem';
 
 export interface ExRadioProps extends IRequest, BaseFieldType, RadioGroupProps {
     fieldNames?: { value?: string; label?: string };

@@ -10,7 +10,7 @@ import {
 import { DatePicker, TimePicker } from 'antd';
 import type { DatePickerProps } from 'antd/lib/date-picker';
 import { formatMoment } from '../../utils/transforms';
-import getRemfrom '../../rem';
+import getRem from '../../rem';
 
 interface ExDatePickerProps extends BaseFieldType {
   type?: 'DatePicker' | 'DateRangePicker' | 'TimePicker' | 'DateTimeRangePicker' | 'DateTimePicker';

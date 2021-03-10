@@ -3,7 +3,7 @@ import {message, Modal, Upload} from 'antd';
 import {InboxOutlined, PlusOutlined} from '@ant-design/icons';
 import type {UploadChangeParam} from 'antd/lib/upload';
 import {RcFile, UploadFile, UploadProps} from "antd/lib/upload/interface";
-import getRemfrom '../../rem';
+import getRem from '../../rem';
 import {UploadMode} from "./index";
 
 const {Dragger} = Upload;

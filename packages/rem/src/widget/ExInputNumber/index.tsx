@@ -2,7 +2,7 @@ import { ProFormDigit } from '@ant-design/pro-form';
 import React from 'react';
 import { InputNumber } from 'antd';
 import type { InputNumberProps } from 'antd/lib/input-number';
-import getRemfrom '../../rem';
+import getRem from '../../rem';
 import type { BaseFieldType } from '../../interface';
 
 interface ExInputNumberProps extends BaseFieldType, InputNumberProps {}

@@ -4,7 +4,7 @@ import { Button, Input, Space } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import type { IAuthority, RequestOptions } from '../../interface';
 import type { SizeType } from 'antd/lib/config-provider/SizeContext';
-import getRemfrom '../../rem';
+import getRem from '../../rem';
 import './index.less';
 
 export interface SimpleFormProps extends IAuthority {

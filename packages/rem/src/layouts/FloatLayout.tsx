@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react';
-import getRemfrom '../rem';
+import getRem from '../rem';
 import type { IAuthority } from '../interface';
 
 interface FloatType extends IAuthority {

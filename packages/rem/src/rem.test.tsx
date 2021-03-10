@@ -1,4 +1,4 @@
-import getRemfrom './rem';
+import getRem from './rem';
 import React from 'react';
 
 test('Rem', async () => {

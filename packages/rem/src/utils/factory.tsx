@@ -15,7 +15,7 @@ import ExInputText from '../widget/ExInputText';
 import ExInputNumber from '../widget/ExInputNumber';
 import ExDatePicker from '../widget/ExDatePicker';
 import ExSwitch from '../widget/ExSwitch';
-import getRemfrom '../rem';
+import getRem from '../rem';
 
 const FormItem = Form.Item;
 

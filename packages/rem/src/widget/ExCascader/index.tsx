@@ -3,7 +3,7 @@ import type { CascaderProps } from 'antd/lib/cascader';
 import { Cascader, Form } from 'antd';
 import useRequest from '../../hooks/useRequest';
 import type { BaseFieldType, IRequest } from '../../interface';
-import getRemfrom '../../rem';
+import getRem from '../../rem';
 
 export interface ExCascaderProps extends CascaderProps, IRequest, BaseFieldType {}
 

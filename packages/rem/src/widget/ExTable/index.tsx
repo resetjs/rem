@@ -12,7 +12,7 @@ import useHandle from '../../hooks/useHandle';
 import ElementContainer from '../../layouts/ElementContainer';
 import type {TableAlertProps} from '@ant-design/pro-table/lib/components/Alert';
 import type {SearchProps} from 'antd/lib/input';
-import getRemfrom '../../rem';
+import getRem from '../../rem';
 
 export interface ExTableProps<T, U, ValueType> extends ProTableProps<T, U, ValueType>, IAuthority {
     simpleSearch?:

@@ -2,7 +2,7 @@ import { ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import React from 'react';
 import { Input } from 'antd';
 import type { BaseFieldType } from '../../interface';
-import getRemfrom '../../rem';
+import getRem from '../../rem';
 
 interface ExInputTextProps extends BaseFieldType {
   type?: 'Text' | 'TextArea';

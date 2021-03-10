@@ -1,5 +1,5 @@
 import React from 'react';
-import getRemfrom '../rem';
+import getRem from '../rem';
 import type { IAuthority } from '../interface';
 
 interface ElementProps {

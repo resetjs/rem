@@ -3,7 +3,7 @@ import { Checkbox, Form } from 'antd';
 import type { CheckboxGroupProps } from 'antd/lib/checkbox';
 import useRequest from '../../hooks/useRequest';
 import { transformTarget } from '../../utils/transforms';
-import getRemfrom '../../rem';
+import getRem from '../../rem';
 import type { BaseFieldType, IRequest } from '../../interface';
 
 export interface ExCheckboxProps extends IRequest, BaseFieldType, CheckboxGroupProps {

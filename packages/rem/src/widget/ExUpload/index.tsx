@@ -2,7 +2,7 @@ import React from 'react';
 import {Form, Image, Space} from 'antd';
 import type {UploadProps} from 'antd/lib/upload';
 import UploadButton from '../ExUpload/UploadButton';
-import getRemfrom '../../rem';
+import getRem from '../../rem';
 import type {BaseFieldType} from '../../interface';
 
 import './index.less';
