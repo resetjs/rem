@@ -4,7 +4,7 @@ import type { TreeSelectProps } from 'antd/lib/tree-select';
 import type { BaseFieldType, IRequest } from '../../interface';
 import useRequest from '../../hooks/useRequest';
 import { transformDatas } from '../../utils/transforms';
-import getRem from '../../rem';
+import rem from '../../rem';
 
 export interface ExTreeSelectProps<T = any> extends TreeSelectProps<any>, IRequest, BaseFieldType {
   options: [];
@@ -88,7 +88,7 @@ export default function ExTreeSelect(props: ExTreeSelectProps) {
           );
         })
     ) : (
-      <span>{getRem().constants.DEFAULT_VALUE}</span>
+      <span>{rem().constants.DEFAULT_VALUE}</span>
     );
   }
 

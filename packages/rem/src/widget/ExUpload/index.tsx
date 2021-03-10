@@ -2,7 +2,7 @@ import React from 'react';
 import {Form, Image, Space} from 'antd';
 import type {UploadProps} from 'antd/lib/upload';
 import UploadButton from '../ExUpload/UploadButton';
-import getRem from '../../rem';
+import rem from '../../rem';
 import type {BaseFieldType} from '../../interface';
 
 import './index.less';
@@ -46,7 +46,7 @@ export default function ExUpload(props: ExUploadProps) {
                 ))}
             </Space>
         ) : (
-            <span>{getRem().constants.DEFAULT_VALUE}</span>
+            <span>{rem().constants.DEFAULT_VALUE}</span>
         );
     }
 

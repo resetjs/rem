@@ -1,5 +1,5 @@
 import React from 'react';
-import getRem from '../rem';
+import rem from '../rem';
 import type { IAuthority } from '../interface';
 
 interface ElementProps {
@@ -11,7 +11,7 @@ interface ElementProps {
 const ElementContainer: React.FC<ElementProps & IAuthority> = (props) => {
   const { authority, children, showNoMatch } = props;
 
-  const { checkAuthority, errorPage } = getRem().permission;
+  const { checkAuthority, errorPage } = rem().permission;
 
   if (checkAuthority(authority)) {
     return children;

@@ -12,7 +12,7 @@ import useHandle from '../../hooks/useHandle';
 import ElementContainer from '../../layouts/ElementContainer';
 import type {TableAlertProps} from '@ant-design/pro-table/lib/components/Alert';
 import type {SearchProps} from 'antd/lib/input';
-import getRem from '../../rem';
+import rem from '../../rem';
 
 export interface ExTableProps<T, U, ValueType> extends ProTableProps<T, U, ValueType>, IAuthority {
     simpleSearch?:
@@ -73,7 +73,7 @@ const ExTable = <T extends Record<string, any>, U extends ParamsType = {}, Value
 
     const {onHandle} = useHandle();
 
-    const {checkAuthority} = getRem().permission;
+    const {checkAuthority} = rem().permission;
 
     const [actionVisibleIndex, setActionVisibleIndex] = useState(-1);
     const [selectedRows, setSelectedRows] = useState<any[]>(sRows || []);

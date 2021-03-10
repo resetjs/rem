@@ -4,7 +4,7 @@ import useRequest from '../../hooks/useRequest';
 import { Form, Select } from 'antd';
 import type { SelectProps } from 'antd/lib/select';
 import { transformTarget } from '../../utils/transforms';
-import getRem from '../../rem';
+import rem from '../../rem';
 
 interface ExSelectProps extends IRequest, SelectProps<any>, BaseFieldType {
   suffix?: string;
@@ -32,15 +32,15 @@ export default function ExSelect(props: ExSelectProps) {
 
   const content = <Select {...params} />;
 
-  const defaultValue = getRem().constants.DEFAULT_VALUE;
+  const defaultValue = rem().constants.DEFAULT_VALUE;
 
   function formatReadValue() {
     const value = readValue
       ?.toString()
       .split(',')
-      .map((value: string, i: number) => {
+      .map((item: string, i: number) => {
         const find = params.options?.find(
-          (item: any) => item.value.toString() === value?.toString(),
+          (child: any) => child.value.toString() === item.toString(),
         );
         return `${i > 0 ? '，' : ''}${find?.label || ''}`;
       });

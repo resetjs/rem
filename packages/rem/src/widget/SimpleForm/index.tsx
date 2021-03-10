@@ -4,7 +4,7 @@ import { Button, Input, Space } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import type { IAuthority, RequestOptions } from '../../interface';
 import type { SizeType } from 'antd/lib/config-provider/SizeContext';
-import getRem from '../../rem';
+import rem from '../../rem';
 import './index.less';
 
 export interface SimpleFormProps extends IAuthority {
@@ -18,7 +18,7 @@ export interface SimpleFormProps extends IAuthority {
 export default function SimpleForm(props: SimpleFormProps) {
   const { mode, onSubmit, value, size, renderEdit, authority } = props;
 
-  const { checkAuthority } = getRem().permission;
+  const { checkAuthority } = rem().permission;
 
   const { onHandle } = useHandle();
 
@@ -95,7 +95,7 @@ export default function SimpleForm(props: SimpleFormProps) {
         setShowEdit(true);
       }}
     >
-      <span style={{ display: 'inline-block' }}>{inputValue || getRem().constants.DEFAULT_VALUE}</span>
+      <span style={{ display: 'inline-block' }}>{inputValue || rem().constants.DEFAULT_VALUE}</span>
       {showEdit && checkAuthority(authority) && (renderEdit?.(normalEdit) || normalEdit)}
     </div>
   );

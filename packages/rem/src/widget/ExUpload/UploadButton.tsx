@@ -3,7 +3,7 @@ import {message, Modal, Upload} from 'antd';
 import {InboxOutlined, PlusOutlined} from '@ant-design/icons';
 import type {UploadChangeParam} from 'antd/lib/upload';
 import {RcFile, UploadFile, UploadProps} from "antd/lib/upload/interface";
-import getRem from '../../rem';
+import rem from '../../rem';
 import {UploadMode} from "./index";
 
 const {Dragger} = Upload;
@@ -102,7 +102,7 @@ export default function UploadButton(props: ParamsProps) {
     const fieldProps: any = {
         onPreview,
         beforeUpload,
-        customRequest: (option: any) => getRem().uploadFile(option),
+        customRequest: (option: any) => rem().uploadFile(option),
         onChange,
     };
 

@@ -3,7 +3,7 @@ import type { CascaderProps } from 'antd/lib/cascader';
 import { Cascader, Form } from 'antd';
 import useRequest from '../../hooks/useRequest';
 import type { BaseFieldType, IRequest } from '../../interface';
-import getRem from '../../rem';
+import rem from '../../rem';
 
 export interface ExCascaderProps extends CascaderProps, IRequest, BaseFieldType {}
 
@@ -30,7 +30,7 @@ export default function ExCascader(props: ExCascaderProps) {
   const content = <Cascader {...params} />;
 
   if (read) {
-    return readValue ? formatReadValue() : <span>{getRem().constants.DEFAULT_VALUE}</span>;
+    return readValue ? formatReadValue() : <span>{rem().constants.DEFAULT_VALUE}</span>;
   }
 
   return formItemProps ? <Form.Item {...formItemProps}>{content}</Form.Item> : content;

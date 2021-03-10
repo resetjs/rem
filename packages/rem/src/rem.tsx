@@ -55,34 +55,34 @@ const defaultConfig: RemConfig = {
     }
 }
 
+
 class Rem {
 
-    static instance: Rem
-    constants: ConstantsType
-    request: (<T>(options: RequestOptions) => Promise<T>)
-    permission: PermissionType;
-    uploadFile: ((options: RcCustomRequestOptions<any>) => void)
+    static instance = new Rem(defaultConfig)
 
-    constructor(config: RemConfig) {
-        this.constants = config.constants;
-        this.permission = config.permission;
-        this.request = config.request;
-        this.uploadFile = config.uploadFile;
+    constants!: ConstantsType
+    request!: (<T>(options: RequestOptions) => Promise<T>)
+    permission!: PermissionType;
+    uploadFile!: ((options: RcCustomRequestOptions<any>) => void)
+
+    protected constructor(config: RemConfig) {
+        this.setPlugins(config)
     }
 
     static applyPlugins(config: RemConfig) {
-        if (!this.instance) {
-            this.instance = new Rem(config);
-        }
-        return this.instance;
+        this.instance.setPlugins(config)
     }
 
+    setPlugins(config: RemConfig) {
+        const {constants, permission, request: configRequest, uploadFile} = config;
+        if (constants) this.constants = constants;
+        if (permission) this.permission = permission;
+        if (configRequest) this.request = configRequest;
+        if (uploadFile) this.uploadFile = uploadFile;
+    }
 }
 
 export {Rem}
 
-const getRem = () => {
-    return Rem.instance || defaultConfig
-}
+export default () => Rem.instance
 
-export default getRem;

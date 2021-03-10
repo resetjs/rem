@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react';
-import getRem from '../rem';
+import rem from '../rem';
 import type { IAuthority } from '../interface';
 
 interface FloatType extends IAuthority {
@@ -36,7 +36,7 @@ interface FloatActionType {
 }
 
 function filterDataSource(dataSource: any[] = []) {
-  const filter = dataSource?.filter((item) => getRem().permission.checkAuthority(item.authority)) || [];
+  const filter = dataSource?.filter((item) => rem().permission.checkAuthority(item.authority)) || [];
   //  过滤重复组件
   const components: FloatType[] = [];
   const temp: any = {};
