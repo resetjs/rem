@@ -28,10 +28,12 @@ interface ParamsProps extends UploadProps {
     extraHint?: string;
     mode?: UploadMode;
     children?: React.ReactNode;
+    /** 资源文件名前缀 */
+    prefix?: string;
 }
 
 export default function UploadButton(props: ParamsProps) {
-    const {type, max = 1, children, extraText, extraHint, mode, maxSize = 1024, ...other} = props;
+    const {type, max = 1, children, extraText, extraHint, mode, maxSize = 1024, prefix, ...other} = props;
 
     const [fileList, setFileList] = useState<any[]>([]);
 
@@ -102,7 +104,7 @@ export default function UploadButton(props: ParamsProps) {
     const fieldProps: any = {
         onPreview,
         beforeUpload,
-        customRequest: (option: any) => rem().uploadFile(option),
+        customRequest: (option: any) => rem().uploadFile({prefix, ...option}),
         onChange,
     };
 

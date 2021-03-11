@@ -7,6 +7,7 @@ import type {BaseFieldType, IRequest} from '../../interface';
 import type {RadioGroupProps} from 'antd/lib/radio/interface';
 import {transformTarget} from '../../utils/transforms';
 import rem from '../../rem';
+import {dataType, isEmpty} from '../../utils/utils';
 
 export interface ExRadioProps extends IRequest, BaseFieldType, RadioGroupProps {
     fieldNames?: { value?: string; label?: string };
@@ -21,8 +22,13 @@ export default function ExRadio(props: ExRadioProps & { mode?: 'Image' }) {
     const list = transformTarget({dataSource, options, valueEnum}, fieldNames);
 
     if (read) {
-        return readValue && list.length
-            ? list.find((item: any) => item.value.toString() === readValue.toString())?.label
+        return (!isEmpty(readValue) && list.length)
+            ? list.find((item: any) => {
+                if (dataType(readValue) === 'boolean') {
+                    return item.value === readValue
+                }
+                return item.value.toString() === readValue.toString()
+            })?.label
             : <span>{rem().constants.DEFAULT_VALUE}</span>
     }
     return (
