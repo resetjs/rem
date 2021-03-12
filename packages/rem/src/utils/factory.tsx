@@ -24,7 +24,7 @@ const SELECT_PLACEHOLDER = ['Checkbox', 'Select', 'TreeSelect', 'Transfer'];
 type FormProps = {
     initialValues?: any;
     read?: boolean;
-    hidden: boolean;
+    hidden?: boolean;
     wrapperCol?: ColProps;
     labelCol?: ColProps;
 };

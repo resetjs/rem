@@ -1,13 +1,12 @@
-import React, {Fragment, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import type {ProFormProps} from '@ant-design/pro-form';
 import ProForm from '@ant-design/pro-form';
 import {Button, Form, Menu, message, Radio, Space, Steps, Tabs} from 'antd';
 import useHandle from '../../hooks/useHandle';
 import type {FormField, RequestOptions} from '../../interface';
 import type {ExModalProps} from '../ExModal';
-import ExModal from '../ExModal';
 import Factory from '../../utils/factory';
-import {formatToArray, parseCol, formatUploadValue, parseUploadValue} from '../../utils/transforms';
+import {formatToArray, formatUploadValue, parseCol, parseUploadValue} from '../../utils/transforms';
 import type {FloatActionType} from '../../layouts/FloatLayout';
 import type {ManualProps} from '../Manual';
 import Manual from '../Manual';
@@ -15,6 +14,7 @@ import isArray from 'lodash/isArray';
 
 import './index.less';
 import {useHistory} from 'react-router-dom';
+import FormWrapper from "./components/Wrapper";
 
 const {TabPane} = Tabs;
 
@@ -231,6 +231,7 @@ const ExForm = (props: ExFormProps) => {
         onClose,
         openid,
         bodyStyle: {padding: 0},
+        ...modeProps
     };
 
     if (read) defaultModalProps.footer = false;
@@ -241,16 +242,18 @@ const ExForm = (props: ExFormProps) => {
         if (obj) group?.onChange?.(obj.key, obj);
     };
 
+    const renderCancelButton = (
+        <Button
+            className={'rem-form-btn'}
+            onClick={() => (history.length === 1 ? window.close() : history.goBack())}
+        >
+            返回
+        </Button>
+    )
+
     const defaultSubmitButton = (
         <Space>
-            {mode === 'page' && group?.mode !== 'step' && (
-                <Button
-                    className={'rem-form-btn'}
-                    onClick={() => (history.length === 1 ? window.close() : history.goBack())}
-                >
-                    返回
-                </Button>
-            )}
+            {mode === 'page' && group?.mode !== 'step' && renderCancelButton}
             {(!group || group?.mode !== 'step' || current === validGroups.length - 1) && (
                 <Button
                     className={'rem-form-btn'}
@@ -297,14 +300,7 @@ const ExForm = (props: ExFormProps) => {
                     上一步
                 </Button>
             )}
-            {mode === 'page' && current === 0 && (
-                <Button
-                    className={'rem-form-btn'}
-                    onClick={() => (history.length === 1 ? window.close() : history.goBack())}
-                >
-                    返回
-                </Button>
-            )}
+            {mode === 'page' && current === 0 && renderCancelButton}
             {group && current < validGroups.length - 1 && group.mode === 'step' && (
                 <Button
                     className={'rem-form-btn'}
@@ -453,8 +449,10 @@ const ExForm = (props: ExFormProps) => {
                                     : renderFields(item.children, position),
                             )
                             : renderFields(formFields, 0)}
-                        {mode === 'page' && !read && (
-                            <Form.Item
+                        {mode === 'page' &&
+                        read
+                            ? <Form.Item wrapperCol={{span: 24}}>{renderCancelButton}</Form.Item>
+                            : <Form.Item
                                 wrapperCol={{
                                     span: 24,
                                     offset: formLayout === 'vertical' ? 0 : props.labelCol?.span || 4,
@@ -462,7 +460,7 @@ const ExForm = (props: ExFormProps) => {
                             >
                                 {group?.mode === 'step' ? defaultSubmitter : defaultSubmitButton}
                             </Form.Item>
-                        )}
+                        }
                     </ProForm>
                 </div>
                 {renderManual()}
@@ -472,17 +470,7 @@ const ExForm = (props: ExFormProps) => {
         </>
     );
 
-    if (mode === 'modal') {
-        return (
-            <ExModal {...defaultModalProps} {...modeProps}>
-                {renderContent}
-            </ExModal>
-        );
-    }
-    if (mode === 'page') {
-        return <div className={'rem-form-container'}>{renderContent}</div>;
-    }
-    return <Fragment/>;
+    return <FormWrapper mode={mode} modeProps={defaultModalProps}>{renderContent}</FormWrapper>
 };
 
 export default ExForm;

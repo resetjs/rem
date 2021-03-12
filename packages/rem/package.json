@@ -15,7 +15,7 @@
   "bugs": "https://github.com/resetjs/rem/issues",
   "repository": {
     "type": "git",
-    "url": "git@github.com:resetjs/getRem().git",
+    "url": "git@github.com:resetjs/rem.git",
     "brach": "main"
   },
   "license": "MIT",
