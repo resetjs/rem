@@ -56,7 +56,10 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
         layout,
         visible,
         fragments,
-        onNext
+        onNext,
+        floatAction,
+        selectedData,
+        ...other
     } = props;
 
     const validGroups =
@@ -79,7 +82,11 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
         style: validGroups[current]?.style || style || {width: mode === 'page' ? '640px' : '100%'},
         validateMessages: {required: '此项为必填项'},
         ...(formLayout === 'horizontal' ? parseCol(4, 20) : parseCol(24, 24)),
+        ...other,
     };
+
+    console.log('form other')
+    console.log(other)
 
     useEffect(() => {
         if ((mode === 'page' || visible) && !read) {
@@ -145,7 +152,7 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
             })
             .then((res) => {
                 handleCallback?.(res, openid);
-                onClose?.(openid);
+                onClose?.();
                 onSubmitCallback?.(res, {reset});
             })
             .catch((err) => {
@@ -206,6 +213,7 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
                      confirmLoading={isLoading}
                      footer={footer}
                      onNext={handleNext}
+                     visible={visible}
                      onOk={handleSubmit}
                      onClose={onClose}>
             <ProForm {...formProps} onValuesChange={onValuesChange} name={openid || 'ExForm'}>

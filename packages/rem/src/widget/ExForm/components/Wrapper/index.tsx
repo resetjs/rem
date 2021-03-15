@@ -38,7 +38,7 @@ export type FormWrapperProps = {
     //  容器 props
     modeProps?: any
     //  表单成员集
-    fragments: ExFormGroupField[];
+    fragments?: ExFormGroupField[];
     //  切换回调
     onChange?: (current: number, selectedOptions: ExFormGroupField) => void;
     //  独立页面 (页面没有任何关联性)
@@ -100,7 +100,7 @@ export default function FormWrapper(props: FormWrapperProps) {
 
     const isSideWay = indicator === 'sideMenu' || indicator === 'tabs';
 
-    const validGroups = fragments.filter((item) => !item.hasOwnProperty('show') || item.show) || [];
+    const validGroups = fragments?.filter((item) => !item.hasOwnProperty('show') || item.show) || [];
 
     const renderManual = () => {
         let temp = manual;
@@ -258,14 +258,14 @@ export default function FormWrapper(props: FormWrapperProps) {
         }
         const container = <Space>{buttons}</Space>
 
-        return footer?.(container) || container
+        return mode === 'page' ? footer?.(container) : container
     }
 
     const content = (
         <div className={isSideWay ? 'rem-form-container-menu' : 'rem-form-container'}>
             <div className={isSideWay ? 'rem-form-content-menu' : 'rem-form-content'}>
                 {renderIndicator()}
-                <div>
+                <div style={{width: '100%'}}>
                     {indicator === 'sideMenu' && (
                         <h1 className={'rem-form-menu-title'}>{validGroups[current].label}</h1>
                     )}

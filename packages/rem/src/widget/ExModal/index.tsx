@@ -5,20 +5,18 @@ import type { ModalProps } from 'antd/lib/modal';
 export interface ExModalProps extends ModalProps {
   children?: React.ReactNode;
   openid?: string;
-  onClose?: (key: string) => void;
+  onClose?: () => void;
   empty?: boolean;
 }
 
 export default function ExModal(props: ExModalProps) {
-  const { confirmLoading, openid, empty } = props;
+  const { confirmLoading, onClose, empty } = props;
 
   return (
     <Modal
       destroyOnClose={true}
       maskClosable={false}
-      onCancel={() => {
-        if (openid && props.onClose) props.onClose(openid);
-      }}
+      onCancel={onClose}
       confirmLoading={confirmLoading}
       {...props}
     >

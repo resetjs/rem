@@ -119,6 +119,7 @@ function FloatLayout(props: FloatLayoutProps) {
     }, [floatValueEnum]);
 
     const onClose = (openid: string) => {
+
         handleOperation(openid, null, false);
     };
 
@@ -143,7 +144,7 @@ function FloatLayout(props: FloatLayoutProps) {
                         selectedData={current?.data}
                         visible={current?.visible}
                         floatAction={userAction}
-                        onClose={onClose}
+                        onClose={() => onClose(findOpenId)}
                         handleCallback={(res: any) => {
                             onClose(findOpenId);
                             if (item.handleCallback) {
