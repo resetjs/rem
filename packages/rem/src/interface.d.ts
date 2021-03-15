@@ -6,7 +6,7 @@ import {FloatActionType} from "./layouts/FloatLayout";
 import {ProColumns} from "@ant-design/pro-table";
 import {SearchTransformKeyFn} from "@ant-design/pro-utils";
 
-interface RequestOptions {
+type RequestOptions = {
   url: string;
   method: string;
   data?: any;

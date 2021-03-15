@@ -1,40 +1,34 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import ExModal from "../../../ExModal";
 import ExDrawer from "../../../ExDrawer";
 import type {ManualProps} from "../../../Manual";
 import Manual from "../../../Manual";
-import {Button, Menu, message, Radio, Space, Steps, Tabs} from "antd";
+import {Button, Menu, Radio, Space, Steps, Tabs} from "antd";
 import {useHistory} from "react-router-dom";
-import useHandle from "../../../../hooks/useHandle";
-import type {FormField, RequestOptions} from "../../../../interface";
-import FormContent from "../Content";
-import {parseCol} from "../../../../utils/transforms";
+import type {FormField} from "../../../../interface";
 
 type ExFormGroupField = {
     //  组件唯一表示
-    key: string;
+    key: string
     // 标题
-    label?: string;
+    label?: string
     //  组件Props
-    fieldProps?: any;
+    fieldProps?: any
     //  表单成员集
-    children?: FormField[];
+    children?: FormField[]
     // 提交
-    onSubmit?: <T>(
-        onHandle: (params: RequestOptions) => Promise<T>,
-        values?: any,
-    ) => Promise<boolean>;
+    onSubmit?: () => void
     // 容器样式
-    style?: any;
+    style?: any
     //  表单说明
-    manual?: ManualProps;
+    manual?: ManualProps
     //  自定义界面
-    render?: React.ReactNode;
+    render?: React.ReactNode
     //  隐藏显示
-    show?: boolean;
+    show?: boolean
 }
 
-type FormWrapperProps = {
+export type FormWrapperProps = {
     //  指示器类型
     indicator?: 'tabs' | 'step' | 'sideMenu' | 'radio';
     //  指示器 props
@@ -42,28 +36,40 @@ type FormWrapperProps = {
     //  容器类型
     mode: 'modal' | 'drawer' | 'page';
     //  容器 props
-    modeProps: any
+    modeProps?: any
     //  表单成员集
     fragments: ExFormGroupField[];
     //  切换回调
-    onChange?: (key: string, selectedOptions: ExFormGroupField) => void;
+    onChange?: (current: number, selectedOptions: ExFormGroupField) => void;
     //  独立页面 (页面没有任何关联性)
     independent?: boolean;
     //  页面说明
     manual?: ManualProps;
     //  只读
     read?: boolean;
-    //  唯一标识
-    openid: string
     //  关闭监听
     onClose: any
+    // 内容
+    children: React.ReactNode
+    //  底部视图
+    footer?: (dom: React.ReactNode) => React.ReactNode
+    //  确认 loading
+    confirmLoading?: boolean
+    //  提交
+    onOk?: () => void
+    //  下一步
+    onNext?: (index: number) => void
+    //  是否显示
+    visible?: boolean
+
+    //  当前
+    current?: number
 }
 
 export default function FormWrapper(props: FormWrapperProps) {
 
     const {
         mode = 'page',
-        modeProps,
         fragments,
         manual,
         read,
@@ -71,12 +77,26 @@ export default function FormWrapper(props: FormWrapperProps) {
         indicator,
         indicatorProps,
         independent,
-        onClose
+        onClose,
+        children,
+        modeProps: userModeProps,
+        footer,
+        confirmLoading,
+        visible,
+        onOk,
+        onNext,
+        current: userCurrent = 0
     } = props
 
-    const [current, setCurrent] = useState(0);
+    const [current, setCurrent] = useState(userCurrent);
+
+    useEffect(() => {
+        if (!visible && mode !== 'page') {
+            setCurrent(0);
+        }
+    }, [visible])
+
     const history = useHistory();
-    const { onHandle} = useHandle();
 
     const isSideWay = indicator === 'sideMenu' || indicator === 'tabs';
 
@@ -93,7 +113,7 @@ export default function FormWrapper(props: FormWrapperProps) {
     const next = (nextCurrent: number) => {
         setCurrent(nextCurrent);
         const obj = validGroups[nextCurrent];
-        if (obj) onChange?.(obj.key, obj);
+        if (obj) onChange?.(nextCurrent, obj);
     };
 
     const renderIndicator = (): React.ReactNode | void => {
@@ -104,11 +124,7 @@ export default function FormWrapper(props: FormWrapperProps) {
                     <Menu
                         className={'rem-form-menu'}
                         mode="inline"
-                        onClick={(e) => {
-                            const temp = parseInt(e.key.toString(), 10);
-                            setCurrent(temp);
-                            onChange?.(validGroups[temp].key, validGroups[temp]);
-                        }}
+                        onClick={(e) => next(parseInt(e.key.toString(), 10))}
                         selectedKeys={[current.toString()]}
                         {...indicatorProps}
                     >
@@ -131,11 +147,7 @@ export default function FormWrapper(props: FormWrapperProps) {
                 dom = (
                     <div className={'rem-form-radio'}>
                         <Radio.Group
-                            onChange={(e) => {
-                                const temp = parseInt(e.target.value, 10);
-                                setCurrent(temp);
-                                onChange?.(validGroups[temp].key, validGroups[temp]);
-                            }}
+                            onChange={(e) => next(parseInt(e.target.value, 10))}
                             value={current.toString()}
                             optionType="button"
                             buttonStyle="solid"
@@ -157,11 +169,7 @@ export default function FormWrapper(props: FormWrapperProps) {
                         className={'rem-form-tabs'}
                         tabPosition="left"
                         activeKey={current.toString()}
-                        onChange={(key) => {
-                            const temp = parseInt(key, 10);
-                            setCurrent(temp);
-                            onChange?.(validGroups[temp].key, validGroups[temp]);
-                        }}
+                        onChange={(key) => next(parseInt(key, 10))}
                         {...indicatorProps}
                     >
                         {validGroups.map((item, index) => (
@@ -176,7 +184,7 @@ export default function FormWrapper(props: FormWrapperProps) {
         return dom;
     };
 
-    const renderHandle = (form: any, handleSubmit: any, isLoading?: boolean) => {
+    const renderHandle = () => {
 
         const buttons = [];
 
@@ -219,22 +227,17 @@ export default function FormWrapper(props: FormWrapperProps) {
                     className={'rem-form-btn'}
                     key="next"
                     type="primary"
-                    loading={isLoading}
-                    onClick={() => {
-                        const keys = validGroups[current]?.children?.map((child) => child.key);
-                        form.validateFields(keys).then((values: any) => {
-                            if (validGroups[current].onSubmit) {
-                                validGroups[current].onSubmit?.(onHandle, values)
-                                    .then(() => next(current + 1))
-                                    .catch((err) => {
-                                        message.error(err.message || err);
-                                    });
-                            } else {
-                                next(current + 1);
+                    loading={confirmLoading}
+                    onClick={async () => {
+                        try {
+                            if (onNext) {
+                                await onNext?.(current)
                             }
-                        });
-                    }}
-                >
+                            await setCurrent(current + 1);
+                        } catch (e) {
+                            console.log('e', e)
+                        }
+                    }}>
                     下一步
                 </Button>
             )
@@ -244,20 +247,19 @@ export default function FormWrapper(props: FormWrapperProps) {
             buttons.push(
                 <Button
                     className={'rem-form-btn'}
-                    loading={isLoading}
+                    loading={confirmLoading}
                     key="submit"
                     type="primary"
-                    onClick={handleSubmit}
+                    onClick={onOk}
                 >
                     提 交
                 </Button>
             )
         }
+        const container = <Space>{buttons}</Space>
 
-        return <Space>{buttons}</Space>
+        return footer?.(container) || container
     }
-
-    const layout = mode === 'page' ? 'vertical' : 'horizontal'
 
     const content = (
         <div className={isSideWay ? 'rem-form-container-menu' : 'rem-form-container'}>
@@ -267,15 +269,21 @@ export default function FormWrapper(props: FormWrapperProps) {
                     {indicator === 'sideMenu' && (
                         <h1 className={'rem-form-menu-title'}>{validGroups[current].label}</h1>
                     )}
-                    <FormContent renderHandle={renderHandle}
-                                 style={validGroups[current]?.style || {width: mode === 'page' ? '640px' : '100%'}}
-                                 {...(layout === 'horizontal' ? parseCol(4, 20) : parseCol(24, 24))}
-                                 layout={layout}/>
+                    {children}
+                    {mode === 'page' && renderHandle()}
                 </div>
             </div>
             {renderManual()}
         </div>
     )
+
+    const modeProps: any = {
+        ...userModeProps,
+        visible,
+        onClose,
+        bodyStyle: {padding: 0},
+        footer: mode === 'modal' && read ? false : renderHandle()
+    };
 
     switch (mode) {
         case "modal":
