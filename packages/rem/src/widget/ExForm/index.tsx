@@ -21,8 +21,6 @@ export interface ExFormProps extends ProFormProps {
     onClose?: (key: string) => void;
     //  表单提交
     onSubmit: (values: any, onHandle: (opts: RequestOptions) => Promise<any>) => Promise<any>
-    //  点击下一步按钮回调
-    onNext: (values: any, index: number) => RequestOptions | any
     // 表单提交成功回调
     onSubmitCallback?: (res: any, options: any) => void;
     //  表单提交回调
@@ -31,8 +29,6 @@ export interface ExFormProps extends ProFormProps {
     selectedData?: any
     //  控制打开当前页面其他表单回调
     floatAction?: FloatActionType;
-    //  form 样式
-    style: React.CSSProperties;
 }
 
 type FormFieldType = Record<string, FormField>;
@@ -56,7 +52,6 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
         layout,
         visible,
         fragments,
-        onNext,
         floatAction,
         selectedData,
         ...other
