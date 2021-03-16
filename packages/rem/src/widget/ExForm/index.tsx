@@ -20,7 +20,7 @@ export interface ExFormProps extends ProFormProps {
     // 表单容器关闭回调
     onClose?: (key: string) => void;
     //  表单提交
-    onSubmit: (values: any, onHandle: (opts: RequestOptions) => Promise<any>) => Promise<any>
+    onSubmit?: (values: any, onHandle: (opts: RequestOptions) => Promise<any>) => Promise<any>
     // 表单提交成功回调
     onSubmitCallback?: (res: any, options: any) => void;
     //  表单提交回调
@@ -29,6 +29,9 @@ export interface ExFormProps extends ProFormProps {
     selectedData?: any
     //  控制打开当前页面其他表单回调
     floatAction?: FloatActionType;
+
+    // 过滤字段
+    staticContext?: any
 }
 
 type FormFieldType = Record<string, FormField>;
@@ -54,6 +57,10 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
         fragments,
         floatAction,
         selectedData,
+        indicator,
+        independent,
+        staticContext,
+        manual,
         ...other
     } = props;
 
@@ -138,7 +145,7 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
             ?.validateFields()
             .then(transformSubmitValues)
             .then(res => {
-                return onSubmit(res, onHandle)
+                return onSubmit?.(res, onHandle) || res
             })
             .then((res) => {
                 handleCallback?.(res, openid);
@@ -189,24 +196,28 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
         );
     };
 
-    const footer = (dom: React.ReactNode) => (
-        <Form.Item
-            wrapperCol={{
-                span: 24,
-                offset: formLayout === 'vertical' ? 0 : props.labelCol?.span || 4,
-            }}
-        >
-            {dom}
-        </Form.Item>
-    )
+    // const footer = (dom: React.ReactNode) => (
+    //     <Form.Item
+    //         wrapperCol={{
+    //             span: 24,
+    //             offset: formLayout === 'vertical' ? 0 : props.labelCol?.span || 4,
+    //         }}
+    //     >
+    //         {dom}
+    //     </Form.Item>
+    // )
 
     return (
         <FormWrapper mode={mode}
+                     current={current}
+                     independent={independent}
+                     indicator={indicator}
                      onChange={setCurrent}
                      modeProps={modeProps}
                      fragments={fragments}
                      confirmLoading={isLoading}
-                     footer={footer}
+                     manual={manual}
+                     read={read}
                      visible={visible}
                      onNext={handleNext}
                      onOk={handleSubmit}

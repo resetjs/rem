@@ -49,9 +49,9 @@ export type FormWrapperProps = {
     //  只读
     read?: boolean;
     //  关闭监听
-    onClose: any
+    onClose?: any
     // 内容
-    children: React.ReactNode
+    children?: React.ReactNode
     //  底部视图
     footer?: (dom: React.ReactNode) => React.ReactNode
     //  确认 loading
@@ -259,16 +259,15 @@ export default function FormWrapper(props: FormWrapperProps) {
                 </Button>
             )
         }
-        const container = <Space>{buttons}</Space>
 
-        return mode === 'page' ? footer?.(container) : container
+        return <Space>{buttons}</Space>
     }
 
     const content = (
         <div className={isSideWay ? 'rem-form-container-menu' : 'rem-form-container'}>
             <div className={isSideWay ? 'rem-form-content-menu' : 'rem-form-content'}>
                 {renderIndicator()}
-                <div style={{width: '100%'}}>
+                <div style={{width: '100%', display: "flex", flexDirection: "column"}}>
                     {indicator === 'sideMenu' && (
                         <h1 className={'rem-form-menu-title'}>{validGroups[current].label}</h1>
                     )}
