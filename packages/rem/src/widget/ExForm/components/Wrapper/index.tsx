@@ -3,9 +3,10 @@ import ExModal from "../../../ExModal";
 import ExDrawer from "../../../ExDrawer";
 import type {ManualProps} from "../../../Manual";
 import Manual from "../../../Manual";
-import {Button, Menu, Radio, Space, Steps, Tabs} from "antd";
+import {Button, Menu, message, Radio, Space, Steps, Tabs} from "antd";
 import {useHistory} from "react-router-dom";
 import type {FormField} from "../../../../interface";
+import {RequestOptions} from "../../../../interface";
 
 type ExFormGroupField = {
     //  组件唯一表示
@@ -17,7 +18,7 @@ type ExFormGroupField = {
     //  表单成员集
     children?: FormField[]
     // 提交
-    onSubmit?: () => void
+    onSubmit?: (values: any | undefined, onHandle: (opts: RequestOptions) => Promise<any>) => Promise<any>
     // 容器样式
     style?: any
     //  表单说明
@@ -58,10 +59,9 @@ export type FormWrapperProps = {
     //  提交
     onOk?: () => void
     //  下一步
-    onNext?: (index: number) => void
+    onNext?: (index: number) => Promise<any>
     //  是否显示
     visible?: boolean
-
     //  当前
     current?: number
 }
@@ -84,8 +84,8 @@ export default function FormWrapper(props: FormWrapperProps) {
         confirmLoading,
         visible,
         onOk,
+        current: userCurrent = 0,
         onNext,
-        current: userCurrent = 0
     } = props
 
     const [current, setCurrent] = useState(userCurrent);
@@ -228,14 +228,17 @@ export default function FormWrapper(props: FormWrapperProps) {
                     key="next"
                     type="primary"
                     loading={confirmLoading}
-                    onClick={async () => {
-                        try {
-                            if (onNext) {
-                                await onNext?.(current)
-                            }
-                            await setCurrent(current + 1);
-                        } catch (e) {
-                            console.log('e', e)
+                    onClick={() => {
+                        if (onNext) {
+                            onNext?.(current)
+                                .then(() => setCurrent(current + 1))
+                                .catch(err => {
+                                    console.log('------------------next err---------------');
+                                    console.log(err);
+                                    message.error(err?.message || '点击下一步失败, 请稍后重试!')
+                                })
+                        } else {
+                            setCurrent(current + 1)
                         }
                     }}>
                     下一步

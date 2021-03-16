@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import type {ProFormProps} from '@ant-design/pro-form';
 import ProForm from '@ant-design/pro-form';
-import {Form} from 'antd';
+import {Form, message} from 'antd';
 import useHandle from '../../hooks/useHandle';
 import type {FormField, RequestOptions} from '../../interface';
 import Factory from '../../utils/factory';
@@ -20,9 +20,9 @@ export interface ExFormProps extends ProFormProps {
     // 表单容器关闭回调
     onClose?: (key: string) => void;
     //  表单提交
-    onSubmit: (values: any) => RequestOptions | void
+    onSubmit: (values: any, onHandle: (opts: RequestOptions) => Promise<any>) => Promise<any>
     //  点击下一步按钮回调
-    onNext: (values: any, index: number) => RequestOptions | void
+    onNext: (values: any, index: number) => RequestOptions | any
     // 表单提交成功回调
     onSubmitCallback?: (res: any, options: any) => void;
     //  表单提交回调
@@ -85,9 +85,6 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
         ...other,
     };
 
-    console.log('form other')
-    console.log(other)
-
     useEffect(() => {
         if ((mode === 'page' || visible) && !read) {
             const temp: any = {};
@@ -145,10 +142,8 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
         formProps.form
             ?.validateFields()
             .then(transformSubmitValues)
-            .then(onSubmit)
             .then(res => {
-                if (res && res.url) return onHandle(res)
-                return res
+                return onSubmit(res, onHandle)
             })
             .then((res) => {
                 handleCallback?.(res, openid);
@@ -158,6 +153,7 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
             .catch((err) => {
                 console.log('------------------form err---------------');
                 console.log(err);
+                message.error(err?.message || '提交失败, 请稍后重试')
             });
     };
 
@@ -166,9 +162,13 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
         formProps.form?.resetFields();
     }
 
-    const handleNext = (index: number) => {
+    const handleNext = async (index: number) => {
         const keys = validGroups[index]?.children?.map((child) => child.key);
-        return formProps.form?.validateFields(keys).then(values => onNext?.(values, index))
+        const values = await formProps.form?.validateFields(keys)
+        if (validGroups[current].onSubmit) {
+            return validGroups[current].onSubmit?.(values, onHandle)
+        }
+        return values;
     }
 
     const renderFields = (list: FormField[] = [], position: number) => {
@@ -212,8 +212,8 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
                      fragments={fragments}
                      confirmLoading={isLoading}
                      footer={footer}
-                     onNext={handleNext}
                      visible={visible}
+                     onNext={handleNext}
                      onOk={handleSubmit}
                      onClose={onClose}>
             <ProForm {...formProps} onValuesChange={onValuesChange} name={openid || 'ExForm'}>
