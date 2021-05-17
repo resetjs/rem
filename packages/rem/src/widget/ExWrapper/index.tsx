@@ -1,12 +1,10 @@
 import React, {useEffect, useState} from "react";
-import ExModal from "../../../ExModal";
-import ExDrawer from "../../../ExDrawer";
-import type {ManualProps} from "../../../Manual";
-import Manual from "../../../Manual";
-import {Button, Menu, message, Radio, Space, Steps, Tabs} from "antd";
+import {Button, Card, Menu, message, Radio, Space, Steps, Tabs} from "antd";
 import {useHistory} from "react-router-dom";
-import type {FormField} from "../../../../interface";
-import {RequestOptions} from "../../../../interface";
+import {ExDrawer, ExModal, Manual, RequestOptions} from "@/rem";
+import {ManualProps} from "@/rem/widget/Manual";
+
+import './index.less'
 
 type ExFormGroupField = {
     //  组件唯一表示
@@ -16,7 +14,7 @@ type ExFormGroupField = {
     //  组件Props
     fieldProps?: any
     //  表单成员集
-    children?: FormField[]
+    children: React.ReactNode
     // 提交
     onSubmit?: (values: any | undefined, onHandle: (opts: RequestOptions) => Promise<any>) => Promise<any>
     // 容器样式
@@ -78,7 +76,7 @@ export type FormWrapperProps = {
     tailLayout?: any
 }
 
-export default function FormWrapper(props: FormWrapperProps) {
+export default function ExWrapper(props: FormWrapperProps) {
 
     const {
         mode = 'page',
@@ -90,7 +88,6 @@ export default function FormWrapper(props: FormWrapperProps) {
         indicatorProps,
         independent,
         onClose,
-        children,
         modeProps: userModeProps,
         confirmLoading,
         visible,
@@ -254,7 +251,7 @@ export default function FormWrapper(props: FormWrapperProps) {
                             setCurrent(current + 1)
                         }
                     }}>
-                    {operation?.nextText}
+                    {operation?.nextText || '下一步'}
                 </Button>
             )
         }
@@ -277,23 +274,29 @@ export default function FormWrapper(props: FormWrapperProps) {
     }
 
     const content = (
-        <div className={'rem-form-wrapper'}>
+        <Card bordered={false} bodyStyle={{padding:0}}>
             <div className={isSideWay ? 'rem-form-container-menu' : 'rem-form-container'}>
                 <div className={isSideWay ? 'rem-form-content-menu' : 'rem-form-content'}>
                     {renderIndicator()}
-                    <div style={{width: '100%', display: "flex", flexDirection: "column"}}>
+                    <div
+                      style={{
+                        width: '100%',
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: indicator === 'sideMenu' ? 'flex-start': 'center',
+                      }}>
                         {indicator === 'sideMenu' && (
                             <h1 className={'rem-form-menu-title'}>{validGroups[current].label}</h1>
                         )}
-                        {children}
+                        {validGroups[current].children}
                     </div>
                 </div>
                 {renderManual()}
             </div>
             <div className={'rem-form-wrapper-submitter'}>
-                {mode === 'page' && renderHandle()}
+                {renderHandle()}
             </div>
-        </div>
+        </Card>
     )
 
     const modeProps: any = {
@@ -310,7 +313,7 @@ export default function FormWrapper(props: FormWrapperProps) {
         case "drawer":
             return <ExDrawer {...modeProps}>{content}</ExDrawer>
         default:
-            return <div className={'rem-form-container'}>{content}</div>
+            return content
     }
 
 }
