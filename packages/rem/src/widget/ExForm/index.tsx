@@ -1,102 +1,61 @@
-import React, {useEffect, useRef, useState} from 'react';
+import {useEffect, useRef} from 'react';
 import type {ProFormProps} from '@ant-design/pro-form';
 import ProForm from '@ant-design/pro-form';
-import {Form, message} from 'antd';
-import useHandle from '../../hooks/useHandle';
-import type {FormField, RequestOptions} from '../../interface';
+import {Form} from 'antd';
+import type {FormField} from '../../interface';
 import Factory from '../../utils/factory';
 import {formatToArray, formatUploadValue, parseCol, parseUploadValue} from '../../utils/transforms';
-import type {FloatActionType} from '../../layouts/FloatLayout';
-import isArray from 'lodash/isArray';
-import type {FormWrapperProps} from "./components/Wrapper";
-import FormWrapper from "./components/Wrapper";
 
 import './index.less';
 
 export interface ExFormProps extends ProFormProps {
-  openid?: string
   // 表单成员
-  formFields?: FormField[];
-  //  表单提交
-  onSubmit?: (values: any, onHandle: (opts: RequestOptions) => Promise<any>) => Promise<any>
-  // 表单提交成功回调
-  onSubmitCallback?: (res: any, options: any) => void;
-  //  表单提交回调
-  handleCallback?: (res: any, openid?: string) => void;
-  //  外边传进来的数据
-  selectedData?: any
-  //  控制打开当前页面其他表单回调
-  floatAction?: FloatActionType;
-  // 过滤字段
+  formFields: FormField[];
+
   staticContext?: any
+  // emit
+  emit?: Function
+  //  只读
+  readonly?: boolean;
 }
 
 type FormFieldType = Record<string, FormField>;
 
-const ExForm = (props: ExFormProps & FormWrapperProps) => {
+function ExForm(props: ExFormProps) {
 
   const {
     openid,
     className,
     style,
-    read,
+    readonly,
     form: userForm,
     initialValues,
-    mode,
-    modeProps,
     formFields,
-    onSubmit,
-    onSubmitCallback,
-    handleCallback,
-    onClose,
-    layout,
-    visible,
-    fragments,
-    floatAction,
-    selectedData,
-    indicator,
-    independent,
+    layout = 'vertical',
     staticContext,
-    manual,
-    operation,
-    ...other
+    emit,
+    ...rest
   } = props;
 
-  const validGroups =
-    fragments?.filter((item) => !item.hasOwnProperty('show') || item.show) || [];
-
-  const {isLoading, onHandle} = useHandle();
   const fieldsRef = useRef<FormFieldType>({});
-  const [current, setCurrent] = useState(0);
   const [form] = Form.useForm();
-
-  let formLayout = layout || (mode === 'page' ? 'vertical' : 'horizontal');
-  if (read) formLayout = 'horizontal';
 
   const formProps: ProFormProps = {
     form: userForm || form,
     submitter: false,
     scrollToFirstError: true,
-    layout: formLayout,
+    layout: readonly ? 'horizontal' : layout,
     className,
-    style: validGroups[current]?.style || style || {width: '100%'},
+    style: style || {width: '100%'},
     validateMessages: {required: '此项为必填项'},
-    ...(formLayout === 'horizontal' ? parseCol(4, 20) : parseCol(24, 24)),
-    ...other,
+    ...(layout === 'horizontal' ? parseCol(4, 20) : parseCol(24, 24)),
+    ...rest,
   };
 
   useEffect(() => {
-    if ((mode === 'page' || visible) && !read) {
+    if (!readonly) {
       const temp: any = {};
-      if (validGroups.length > 0) {
-        validGroups.forEach((item: any) => {
-          if (item.children && isArray(item.children)) {
-            item.children.forEach((childItem: any) => {
-              temp[childItem.key] = childItem;
-            });
-          }
-        });
-      } else if (formFields && formFields.length > 0) {
+      if (formFields && formFields.length > 0) {
         formFields.forEach((item) => {
           temp[item.key] = item;
         });
@@ -123,7 +82,7 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
         formProps.form?.setFieldsValue(initialValues);
       }
     }
-  }, [visible, initialValues, read]);
+  }, [initialValues, readonly]);
 
   const transformSubmitValues = (values: any) => {
     const temp = values
@@ -139,47 +98,13 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
   };
 
   const handleSubmit = () => {
-    formProps.form
-      ?.validateFields()
-      .then(transformSubmitValues)
-      .then(res => {
-        return onSubmit?.(res, onHandle) || res
-      })
-      .then((res) => {
-        handleCallback?.(res, openid);
-        onClose?.();
-        onSubmitCallback?.(res, {reset});
-      })
-      .catch((err) => {
-        console.log('------------------form err---------------');
-        console.log(err);
-        message.error(err?.message || '提交失败, 请稍后重试')
-      });
+    return formProps.form?.validateFields().then(transformSubmitValues)
   };
 
-  function reset() {
-    setCurrent(0);
-    formProps.form?.resetFields();
-  }
+  useEffect(() => {
+    emit?.(handleSubmit)
+  }, [])
 
-  const handleNext = async (index: number) => {
-    const keys = validGroups[index]?.children?.map((child) => child.key);
-    const values = await formProps.form?.validateFields(keys)
-    if (validGroups[current].onSubmit) {
-      return validGroups[current].onSubmit?.(values, onHandle)
-    }
-    return values;
-  }
-
-  const renderFields = (list: FormField[] = [], position: number) => {
-    return Factory.createFormFields(list, {
-      read,
-      initialValues,
-      hidden: position !== current,
-      labelCol: formProps.labelCol,
-      wrapperCol: formProps.wrapperCol,
-    });
-  };
 
   const onValuesChange = async (changedValues: any, allValues: any) => {
     const element = formFields?.find(
@@ -196,16 +121,16 @@ const ExForm = (props: ExFormProps & FormWrapperProps) => {
 
   return (
     <ProForm {...formProps} onValuesChange={onValuesChange} name={openid || 'ExForm'}>
-      {validGroups.length > 0
-        ? validGroups.map((item, position) =>
-          item.render && current === position
-            ? item.render
-            : renderFields(item.children, position),
-        )
-        : renderFields(formFields, 0)}
+      {Factory.createFormFields(formFields, {
+        readonly,
+        initialValues,
+        labelCol: formProps.labelCol,
+        wrapperCol: formProps.wrapperCol,
+      })}
     </ProForm>
   )
 
 };
+ExForm.displayName = 'ExForm';
 
 export default ExForm;
