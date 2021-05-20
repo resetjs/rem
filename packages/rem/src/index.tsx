@@ -16,6 +16,7 @@ import Manual from './widget/Manual';
 import SimpleForm from './widget/SimpleForm';
 import ExTable from './widget/ExTable';
 import ExUpload from './widget/ExUpload';
+import ExWrapper from './widget/ExWrapper';
 import type {ElementProps} from './layouts/ElementContainer';
 import ElementContainer from './layouts/ElementContainer';
 import type {
@@ -89,6 +90,7 @@ export {
     ExUpload,
     Manual,
     SimpleForm,
+    ExWrapper
 };
 
 export default rem;

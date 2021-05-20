@@ -23,7 +23,7 @@ const SELECT_PLACEHOLDER = ['Checkbox', 'Select', 'TreeSelect', 'Transfer'];
 
 type FormProps = {
     initialValues?: any;
-    read?: boolean;
+    readonly?: boolean;
     hidden?: boolean;
     wrapperCol?: ColProps;
     labelCol?: ColProps;
@@ -193,7 +193,7 @@ class Factory {
 
             const read =
                 (field.hasOwnProperty('read') && field.read) ||
-                (!field.hasOwnProperty('read') && formProps?.read);
+                (!field.hasOwnProperty('read') && formProps?.readonly);
 
             let optionProps;
             if (read) {
@@ -208,7 +208,7 @@ class Factory {
             const readProps: any = {name: undefined, extra: undefined, required: false};
 
             // 仅当全局read模式, 才格式化样式
-            if (!field.hasOwnProperty('read') && formProps?.read) {
+            if (!field.hasOwnProperty('read') && formProps?.readonly) {
                 readProps.labelCol = {span: 0};
                 readProps.wrapperCol = {span: 24};
             }

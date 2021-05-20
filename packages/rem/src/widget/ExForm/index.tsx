@@ -1,4 +1,4 @@
-import {useEffect, useRef} from 'react';
+import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import type {ProFormProps} from '@ant-design/pro-form';
 import ProForm from '@ant-design/pro-form';
 import {Form} from 'antd';
@@ -7,11 +7,11 @@ import Factory from '../../utils/factory';
 import {formatToArray, formatUploadValue, parseCol, parseUploadValue} from '../../utils/transforms';
 
 import './index.less';
+import {WrapperContext} from "../ExWrapper";
 
 export interface ExFormProps extends ProFormProps {
   // 表单成员
   formFields: FormField[];
-
   staticContext?: any
   // emit
   emit?: Function
@@ -24,7 +24,6 @@ type FormFieldType = Record<string, FormField>;
 function ExForm(props: ExFormProps) {
 
   const {
-    openid,
     className,
     style,
     readonly,
@@ -39,6 +38,8 @@ function ExForm(props: ExFormProps) {
 
   const fieldsRef = useRef<FormFieldType>({});
   const [form] = Form.useForm();
+
+  const context = useContext(WrapperContext)
 
   const formProps: ProFormProps = {
     form: userForm || form,
@@ -97,13 +98,11 @@ function ExForm(props: ExFormProps) {
     return temp;
   };
 
-  const handleSubmit = () => {
-    return formProps.form?.validateFields().then(transformSubmitValues)
-  };
-
   useEffect(() => {
-    emit?.(handleSubmit)
-  }, [])
+    context.setOnClickNextListener(()=> {
+      return formProps.form?.validateFields().then(transformSubmitValues)
+    })
+  }, [formProps.form])
 
 
   const onValuesChange = async (changedValues: any, allValues: any) => {
@@ -119,8 +118,10 @@ function ExForm(props: ExFormProps) {
     );
   };
 
+  const formName = useMemo<string>(()=> Math.round(Math.random()* 1000).toString(), [])
+
   return (
-    <ProForm {...formProps} onValuesChange={onValuesChange} name={openid || 'ExForm'}>
+    <ProForm {...formProps} onValuesChange={onValuesChange} name={formName}>
       {Factory.createFormFields(formFields, {
         readonly,
         initialValues,
