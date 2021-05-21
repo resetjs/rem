@@ -16,7 +16,7 @@ import Manual from './widget/Manual';
 import SimpleForm from './widget/SimpleForm';
 import ExTable from './widget/ExTable';
 import ExUpload from './widget/ExUpload';
-import ExWrapper from './widget/ExWrapper';
+import ExWrapper, {ExWrapperContext} from './widget/ExWrapper';
 import type {ElementProps} from './layouts/ElementContainer';
 import ElementContainer from './layouts/ElementContainer';
 import type {
@@ -66,7 +66,7 @@ export type {
     ElementProps,
 };
 
-export {useHandle, useRequest, Rem};
+export {useHandle, useRequest, ExWrapperContext, Rem};
 
 export {
     ElementContainer,

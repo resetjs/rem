@@ -1,4 +1,4 @@
-import React, {ReactNode, useEffect, useMemo, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {Button, Card, Menu, message, Radio, Space, Steps, Tabs} from "antd";
 import {useHistory} from "react-router-dom";
 
@@ -7,6 +7,7 @@ import './index.less'
 import ExDrawer from "../ExDrawer";
 import Manual, {ManualProps} from "../Manual";
 import useHandle from "../../hooks/useHandle";
+import ExModal from "../ExModal";
 
 type ExWrapperField = {
     //  组件唯一表示
@@ -14,7 +15,7 @@ type ExWrapperField = {
     // 标题
     label?: string
     //  表单成员集
-    children: ReactNode
+    children: any
     // 容器样式
     style?: any
     //  表单说明
@@ -63,14 +64,19 @@ type ExWrapperProps = {
     operation?: OperationConfig;
 }
 
-interface WrapperContextType {
+export const ExWrapperContext = React.createContext<| {
+    //  监听当前所在模块的下一步操作
     setOnClickNextListener: (listener: Function) => void
-    get: () => any
-    set: (value: any) => void
+    //  获取当前所在模块数据集
+    getCurrent: () => any
+    //  设置当前所在模块数据集
+    setCurrent: (value: any) => void
+    //  获取Wrapper所有模块数据集 tips:如果模块间有重复的数据属性, 以最后的模块的为准, 请保证全局的唯一性
+    getAll: () => any
+    //  获取Wrapper某个模块的数据集
+    get: (key: string) => any
 }
-
-// @ts-ignore
-const WrapperContext = React.createContext<WrapperContextType>({});
+    | undefined>(undefined);
 
 function ExWrapper(props: ExWrapperProps) {
 
@@ -89,12 +95,13 @@ function ExWrapper(props: ExWrapperProps) {
         onOkCallback,
         current: userCurrent = 0,
         operation,
-    } = props
+    } = props;
 
     const [current, setCurrent] = useState(userCurrent);
 
-    const {onHandle, isLoading} = useHandle()
+    const storeRef = useRef<{ [key: string]: { value: any, listeners: Function[] } }>({})
 
+    const {onHandle, isLoading} = useHandle()
 
     useEffect(() => {
         if (!visible && mode !== 'page') {
@@ -102,7 +109,6 @@ function ExWrapper(props: ExWrapperProps) {
         }
     }, [visible])
 
-    const storeRef = useRef<{ [key: string]: { value?: any, listener?: any } }>({})
 
     const history = useHistory();
 
@@ -192,16 +198,11 @@ function ExWrapper(props: ExWrapperProps) {
     };
 
     const updateValues = async () => {
-        let res;
         const {key} = validGroups[current]
-        console.log(storeRef)
-        console.log(current)
-        console.log(key)
-        if (storeRef.current[key].listener) {
-            res = await storeRef.current[key].listener()
-            storeRef.current[key].value = {...storeRef.current[key].value, ...res}
+        if (storeRef.current[key] && storeRef.current[key].listeners.length > 0) {
+            await Promise.all(storeRef.current[key].listeners.map(listener => listener()));
         }
-        await validGroups[current].onNext?.(res, onHandle)
+        await validGroups[current].onNext?.(storeRef.current[key]?.value, onHandle)
     }
 
     const renderHandle = () => {
@@ -286,60 +287,58 @@ function ExWrapper(props: ExWrapperProps) {
         return <Space>{buttons}</Space>
     }
 
-    const contextValue = useMemo(()=> {
-        console.log('useMemo contextValue')
-        return {
-            setOnClickNextListener: (listener: Function) => {
-                const {key} = validGroups[current]
-                if (storeRef.current[key]) {
-                    storeRef.current[key].listener = listener;
-                } else {
-                    storeRef.current[key] = {listener};
-                }
-            },
-            get: () => {
-                const {key} = validGroups[current]
-                return storeRef.current[key]?.value;
-            },
-            set: (value: any) => {
-                const {key} = validGroups[current]
-                if (storeRef.current[key]) {
-                    storeRef.current[key].value =
-                        {...storeRef.current[key].value, ...value};
-                } else {
-                    storeRef.current[key] = {value};
-                }
-            }
-        }
-    }, [])
-
     const content = (
         <Card bordered={false} bodyStyle={{padding: 0}}>
             <div className={isSideWay ? 'rem-form-container-menu' : 'rem-form-container'}>
                 <div className={isSideWay ? 'rem-form-content-menu' : 'rem-form-content'}>
                     {renderIndicator()}
-                    <WrapperContext.Provider value={contextValue}>
                     {
                         validGroups.map((child, index) => {
                             return (
-                                <div
-                                    key={child.key}
-                                    style={{
-                                        width: '100%',
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        contentVisibility: current === index ? "visible" : "hidden",
-                                        alignItems: indicator === 'sideMenu' ? 'flex-start' : 'center',
-                                    }}>
-                                    {indicator === 'sideMenu' && (
-                                        <h1 className={'rem-form-menu-title'}>{child.label}</h1>
-                                    )}
+                                <ExWrapperContext.Provider key={child.key} value={{
+                                    setOnClickNextListener: (listener => {
+                                        if (!storeRef.current[child.key]) {
+                                            storeRef.current[child.key] = {listeners: [], value: {}}
+                                        }
+                                        storeRef.current[child.key].listeners.push(listener)
+                                    }),
+                                    getCurrent: () => {
+                                        return storeRef.current[child.key]?.value;
+                                    },
+                                    setCurrent: (value: any) => {
+                                        if (!storeRef.current[child.key]) {
+                                            storeRef.current[child.key] = {listeners: [], value: {}}
+                                        }
+                                        storeRef.current[child.key].value = {...storeRef.current[child.key].value, ...value}
+                                    },
+                                    get: (key: string) => {
+                                        return storeRef.current[key]?.value;
+                                    },
+                                    getAll: () => {
+                                        let values = {};
+                                        Object.keys(storeRef.current).forEach(key => {
+                                            values = {...values, ...storeRef.current[key].value}
+                                        })
+                                        return values;
+                                    }
+                                }}>
+                                    <div
+                                        style={{
+                                            width: '100%',
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            contentVisibility: current === index ? "visible" : "hidden",
+                                            alignItems: indicator === 'sideMenu' ? 'flex-start' : 'center',
+                                        }}>
+                                        {indicator === 'sideMenu' && (
+                                            <h1 className={'rem-form-menu-title'}>{child.label}</h1>
+                                        )}
                                         {child.children}
-                                </div>
+                                    </div>
+                                </ExWrapperContext.Provider>
                             )
                         })
                     }
-                    </WrapperContext.Provider>
                 </div>
                 {renderManual()}
             </div>
@@ -359,7 +358,6 @@ function ExWrapper(props: ExWrapperProps) {
 
     switch (mode) {
         case "modal":
-            // @ts-ignore
             return <ExModal {...modeProps}>{content}</ExModal>
         case "drawer":
             return <ExDrawer {...modeProps}>{content}</ExDrawer>
@@ -369,7 +367,5 @@ function ExWrapper(props: ExWrapperProps) {
     }
 
 }
-
-export {WrapperContext, WrapperContextType, ExWrapperProps}
 
 export default ExWrapper

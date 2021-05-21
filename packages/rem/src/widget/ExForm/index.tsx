@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useMemo, useRef} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import type {ProFormProps} from '@ant-design/pro-form';
 import ProForm from '@ant-design/pro-form';
 import {Form} from 'antd';
@@ -7,14 +7,12 @@ import Factory from '../../utils/factory';
 import {formatToArray, formatUploadValue, parseCol, parseUploadValue} from '../../utils/transforms';
 
 import './index.less';
-import {WrapperContext} from "../ExWrapper";
+import {ExWrapperContext} from "../ExWrapper";
 
 export interface ExFormProps extends ProFormProps {
   // 表单成员
   formFields: FormField[];
   staticContext?: any
-  // emit
-  emit?: Function
   //  只读
   readonly?: boolean;
 }
@@ -32,14 +30,11 @@ function ExForm(props: ExFormProps) {
     formFields,
     layout = 'vertical',
     staticContext,
-    emit,
     ...rest
   } = props;
 
   const fieldsRef = useRef<FormFieldType>({});
   const [form] = Form.useForm();
-
-  const context = useContext(WrapperContext)
 
   const formProps: ProFormProps = {
     form: userForm || form,
@@ -98,13 +93,6 @@ function ExForm(props: ExFormProps) {
     return temp;
   };
 
-  useEffect(() => {
-    context.setOnClickNextListener(()=> {
-      return formProps.form?.validateFields().then(transformSubmitValues)
-    })
-  }, [formProps.form])
-
-
   const onValuesChange = async (changedValues: any, allValues: any) => {
     const element = formFields?.find(
       (item: any) => item.key === Object.keys(changedValues).toString(),
@@ -118,10 +106,17 @@ function ExForm(props: ExFormProps) {
     );
   };
 
-  const formName = useMemo<string>(()=> Math.round(Math.random()* 1000).toString(), [])
+  const context = useContext(ExWrapperContext)
+
+  useEffect(() => {
+    context?.setOnClickNextListener(()=> {
+      const values = formProps.form?.validateFields().then(transformSubmitValues)
+      context.setCurrent(values)
+    })
+  }, [context])
 
   return (
-    <ProForm {...formProps} onValuesChange={onValuesChange} name={formName}>
+    <ProForm {...formProps} onValuesChange={onValuesChange}>
       {Factory.createFormFields(formFields, {
         readonly,
         initialValues,
@@ -130,8 +125,8 @@ function ExForm(props: ExFormProps) {
       })}
     </ProForm>
   )
+}
 
-};
 ExForm.displayName = 'ExForm';
 
 export default ExForm;
