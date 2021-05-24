@@ -33,12 +33,12 @@ export interface ExTableProps<T, U, ValueType> extends ProTableProps<T, U, Value
 }
 
 function findFloatComponent(field: TableField, floats: FloatType[]) {
-    if (field.floatComponent) {
+    if (field.binding) {
         floats.push({
-            component: field.floatComponent,
+            component: field.binding,
             openid: field.key,
             authority: field.authority,
-            componentProps: field.floatProps,
+            componentProps: field.bindingProps,
         });
     }
 }

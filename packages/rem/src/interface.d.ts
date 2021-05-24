@@ -126,10 +126,10 @@ interface TableField<T = any, K = any> extends Field<T> {
   ) => any;
 
   //  操作项对应浮动层组件属性
-  floatProps?: any;
+  bindingProps?: any;
 
   //  操作项对应浮动层组件
-  floatComponent?: any;
+  binding?: any;
 
   // ProColumns props
   columnsProps?: ProColumns<T>;

@@ -2,12 +2,11 @@ import React, {useEffect, useRef, useState} from "react";
 import {Button, Card, Menu, message, Radio, Space, Steps, Tabs} from "antd";
 import {useHistory} from "react-router-dom";
 
-
-import './index.less'
-import ExDrawer from "../ExDrawer";
 import Manual, {ManualProps} from "../Manual";
 import useHandle from "../../hooks/useHandle";
-import ExModal from "../ExModal";
+import PopupWindow from "../PopupWindow";
+
+import './index.less'
 
 type ExWrapperField = {
     //  组件唯一表示
@@ -39,11 +38,11 @@ type ExWrapperProps = {
     //  指示器 props
     indicatorProps?: any
     //  容器类型
-    mode?: 'modal' | 'drawer' | 'page';
+    mode?: 'modal' | 'drawer';
     //  容器 props
     modeProps?: any
     //  表单成员集
-    fragments: ExWrapperField[];
+    fragments?: ExWrapperField[];
     //  切换回调
     onChange?: (current: number, selectedOptions: ExWrapperField) => void;
     //  页面说明
@@ -81,8 +80,8 @@ export const ExWrapperContext = React.createContext<| {
 function ExWrapper(props: ExWrapperProps) {
 
     const {
-        mode = 'page',
-        fragments: validGroups,
+        mode,
+        fragments: validGroups = [],
         manual,
         readonly,
         onChange,
@@ -104,7 +103,7 @@ function ExWrapper(props: ExWrapperProps) {
     const {onHandle, isLoading} = useHandle()
 
     useEffect(() => {
-        if (!visible && mode !== 'page') {
+        if (!visible && mode) {
             setCurrent(0);
         }
     }, [visible])
@@ -223,14 +222,12 @@ function ExWrapper(props: ExWrapperProps) {
                 <Button className={'rem-form-btn'}
                         key="back"
                         onClick={() => {
-                            if (mode === "page") {
-                                if (history.length === 1) {
-                                    window.close()
-                                } else {
-                                    history.goBack()
-                                }
-                            } else {
+                            if (mode === "modal" || mode === "drawer") {
                                 onClose()
+                            } else if (history.length === 1) {
+                                window.close()
+                            } else {
+                                history.goBack()
                             }
                         }}
                 >
@@ -355,6 +352,7 @@ function ExWrapper(props: ExWrapperProps) {
     )
 
     const modeProps: any = {
+        mode,
         ...userModeProps,
         visible,
         onClose,
@@ -364,10 +362,8 @@ function ExWrapper(props: ExWrapperProps) {
 
     switch (mode) {
         case "modal":
-            return <ExModal {...modeProps}>{content}</ExModal>
         case "drawer":
-            return <ExDrawer {...modeProps}>{content}</ExDrawer>
-        case "page":
+            return <PopupWindow {...modeProps}>{content}</PopupWindow>
         default:
             return content
     }

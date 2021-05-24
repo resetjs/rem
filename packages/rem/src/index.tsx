@@ -1,11 +1,10 @@
 import ExCascader from './widget/ExCascader';
 import ExCheckbox from './widget/ExCheckbox';
 import ExDatePicker from './widget/ExDatePicker';
-import ExDrawer from './widget/ExDrawer';
 import ExForm from './widget/ExForm';
 import ExInputNumber from './widget/ExInputNumber';
 import ExInputText from './widget/ExInputText';
-import ExModal from './widget/ExModal';
+import PopupWindow from './widget/PopupWindow';
 import ExRadio from './widget/ExRadio';
 import ExSelect from './widget/ExSelect';
 import ExSwitch from './widget/ExSwitch';
@@ -75,11 +74,10 @@ export {
     ExCascader,
     ExCheckbox,
     ExDatePicker,
-    ExDrawer,
+    PopupWindow,
     ExForm,
     ExInputNumber,
     ExInputText,
-    ExModal,
     ExRadio,
     ExSelect,
     ExSkeleton,
