@@ -200,9 +200,20 @@ function ExWrapper(props: ExWrapperProps) {
     const updateValues = async () => {
         const {key} = validGroups[current]
         if (storeRef.current[key] && storeRef.current[key].listeners.length > 0) {
-            await Promise.all(storeRef.current[key].listeners.map(listener => listener()));
+            const results = await Promise.all(storeRef.current[key].listeners.map(listener => listener()));
+            results.forEach(item => {
+                storeRef.current[key].value = {...storeRef.current[key].value, ...item};
+            })
         }
-        await validGroups[current].onNext?.(storeRef.current[key]?.value, onHandle)
+        await validGroups[current].onNext?.(storeRef.current[key]?.value, onHandle);
+    }
+
+    const getValues = () => {
+        let values = {};
+        Object.keys(storeRef.current).forEach(key => {
+            values = {...values, ...storeRef.current[key].value}
+        })
+        return values;
     }
 
     const renderHandle = () => {
@@ -248,8 +259,13 @@ function ExWrapper(props: ExWrapperProps) {
                     type="primary"
                     loading={isLoading}
                     onClick={async () => {
-                        await updateValues()
-                        setCurrent(current + 1)
+                        try {
+                            await updateValues()
+                            setCurrent(current + 1)
+                        } catch (err) {
+                            console.log(err.message)
+                            if (err.message) message.error(err.message)
+                        }
                     }}>
                     {operation?.nextText || '下一步'}
                 </Button>
@@ -264,18 +280,14 @@ function ExWrapper(props: ExWrapperProps) {
                     key="submit"
                     type="primary"
                     onClick={async () => {
-                        await updateValues()
                         try {
-                            let values = {};
-                            Object.keys(storeRef.current).forEach(key => {
-                                values = {...values, ...storeRef.current[key].value}
-                            })
-                            const result = await onOk?.(values, onHandle)
+                            await updateValues()
+                            const result = await onOk?.(getValues(), onHandle)
                             await onOkCallback?.(result)
                             onClose?.()
                         } catch (err) {
                             console.log(err.message)
-                            message.error(err.message)
+                            if (err.message) message.error(err.message)
                         }
                     }}
                 >
@@ -314,13 +326,7 @@ function ExWrapper(props: ExWrapperProps) {
                                     get: (key: string) => {
                                         return storeRef.current[key]?.value;
                                     },
-                                    getAll: () => {
-                                        let values = {};
-                                        Object.keys(storeRef.current).forEach(key => {
-                                            values = {...values, ...storeRef.current[key].value}
-                                        })
-                                        return values;
-                                    }
+                                    getAll: getValues
                                 }}>
                                     <div
                                         style={{

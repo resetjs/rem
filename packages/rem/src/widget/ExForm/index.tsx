@@ -109,11 +109,9 @@ function ExForm(props: ExFormProps) {
   const context = useContext(ExWrapperContext)
 
   useEffect(() => {
-    context?.setOnClickNextListener(()=> {
-      const values = formProps.form?.validateFields().then(transformSubmitValues)
-      context.setCurrent(values)
-    })
-  }, [context])
+    context?.setOnClickNextListener(
+        () => formProps.form?.validateFields().then(transformSubmitValues))
+  }, [])
 
   return (
     <ProForm {...formProps} onValuesChange={onValuesChange}>
