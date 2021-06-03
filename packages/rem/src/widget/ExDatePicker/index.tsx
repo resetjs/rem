@@ -17,7 +17,7 @@ interface ExDatePickerProps extends BaseFieldType {
 }
 
 export default function ExDatePicker(props: ExDatePickerProps & DatePickerProps) {
-  const { read, readValue, formItemProps, type, ...other } = props;
+  const { readonly, readonlyValue, formItemProps, type, ...other } = props;
 
   const format = typeof other.format === 'string' ? other.format : 'YYYY-MM-DD';
 
@@ -57,10 +57,10 @@ export default function ExDatePicker(props: ExDatePickerProps & DatePickerProps)
     }
   };
 
-  return read ? (
+  return readonly ? (
     <>
-      {readValue ? (
-        <div>{formatMoment(readValue, { format, extra: '' })}</div>
+      {readonlyValue ? (
+        <div>{formatMoment(readonlyValue, { format, extra: '' })}</div>
       ) : (
         rem().constants.DEFAULT_VALUE
       )}

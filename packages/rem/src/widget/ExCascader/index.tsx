@@ -8,7 +8,7 @@ import rem from '../../rem';
 export interface ExCascaderProps extends CascaderProps, IRequest, BaseFieldType {}
 
 export default function ExCascader(props: ExCascaderProps) {
-  const { formItemProps, options, read, readValue, ...other } = props;
+  const { formItemProps, options, readonly, readonlyValue, ...other } = props;
 
   const { dataSource } = useRequest(props.request);
 
@@ -24,13 +24,13 @@ export default function ExCascader(props: ExCascaderProps) {
 
   function formatReadValue() {
     //  这里涉及要多层级遍历, 暂时不做遍历
-    return readValue;
+    return readonlyValue;
   }
 
   const content = <Cascader {...params} />;
 
-  if (read) {
-    return readValue ? formatReadValue() : <span>{rem().constants.DEFAULT_VALUE}</span>;
+  if (readonly) {
+    return readonlyValue ? formatReadValue() : <span>{rem().constants.DEFAULT_VALUE}</span>;
   }
 
   return formItemProps ? <Form.Item {...formItemProps}>{content}</Form.Item> : content;

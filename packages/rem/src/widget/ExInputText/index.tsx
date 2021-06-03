@@ -11,7 +11,7 @@ interface ExInputTextProps extends BaseFieldType {
 }
 
 export default function ExInputText(props: ExInputTextProps) {
-  const { read, readValue, formItemProps, valueEnum, type, prefix, suffix, ...other } = props;
+  const { readonly, readonlyValue, formItemProps, valueEnum, type, prefix, suffix, ...other } = props;
 
   let content;
   if (type === 'TextArea') {
@@ -28,9 +28,9 @@ export default function ExInputText(props: ExInputTextProps) {
     );
   }
 
-  return read ? (
+  return readonly ? (
     <>
-      {readValue ? (
+      {readonlyValue ? (
         <div
           style={{
             width: '95%',
@@ -40,7 +40,7 @@ export default function ExInputText(props: ExInputTextProps) {
           }}
         >
           {typeof suffix === 'string' && prefix}
-          {readValue}
+          {readonlyValue}
           {typeof suffix === 'string' && suffix}
         </div>
       ) : (

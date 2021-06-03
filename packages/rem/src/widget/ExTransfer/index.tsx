@@ -16,7 +16,7 @@ export interface ExTransferProps<T = any> extends TransferProps<T>, IRequest, Ba
 }
 
 export default function ExTransfer(props: ExTransferProps) {
-  const { style, mode, read, readValue, formItemProps, fieldNames, columns } = props;
+  const { style, mode, readonly, readonlyValue, formItemProps, fieldNames, columns } = props;
 
   const { dataSource } = useRequest(props.request);
 
@@ -126,9 +126,9 @@ export default function ExTransfer(props: ExTransferProps) {
     );
 
   useEffect(() => {
-    if (readValue && readValue.length > 0) {
+    if (readonlyValue && readonlyValue.length > 0) {
       const arr: string[] = [];
-      readValue?.forEach((key: string) => {
+      readonlyValue?.forEach((key: string) => {
         transferDataSource.forEach((item: any) => {
           const label = item[fieldNames?.label || 'label'];
           const value = item[fieldNames?.value || 'value'];
@@ -137,10 +137,10 @@ export default function ExTransfer(props: ExTransferProps) {
       });
       setFormatReadValue(arr.join(', '));
     }
-  }, [readValue]);
+  }, [readonlyValue]);
 
-  if (read) {
-    return readValue ? <span>{formatReadValue}</span> : <span>{defaultValue}</span>;
+  if (readonly) {
+    return readonlyValue ? <span>{formatReadValue}</span> : <span>{defaultValue}</span>;
   }
 
   return formItemProps ? <Form.Item {...formItemProps}>{content}</Form.Item> : content;

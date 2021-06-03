@@ -19,8 +19,8 @@ export default function ExSelect(props: ExSelectProps) {
     request,
     options,
     valueEnum,
-    read,
-    readValue,
+    readonly,
+    readonlyValue,
     ...other
   } = props;
 
@@ -35,7 +35,7 @@ export default function ExSelect(props: ExSelectProps) {
   const defaultValue = rem().constants.DEFAULT_VALUE;
 
   function formatReadValue() {
-    const value = readValue
+    const value = readonlyValue
       ?.toString()
       .split(',')
       .map((item: string, i: number) => {
@@ -45,11 +45,11 @@ export default function ExSelect(props: ExSelectProps) {
         return `${i > 0 ? '，' : ''}${find?.label || ''}`;
       });
 
-    return value && value[0] && value[0].length > 0 ? value : readValue || defaultValue;
+    return value && value[0] && value[0].length > 0 ? value : readonlyValue || defaultValue;
   }
 
-  if (read) {
-    return readValue ? formatReadValue() : <span>{defaultValue}</span>;
+  if (readonly) {
+    return readonlyValue ? formatReadValue() : <span>{defaultValue}</span>;
   }
 
   return formItemProps ? <Form.Item {...formItemProps}>{content}</Form.Item> : content;

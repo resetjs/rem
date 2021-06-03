@@ -14,8 +14,8 @@ export interface ExCheckboxProps extends IRequest, BaseFieldType, CheckboxGroupP
 export default function ExCheckbox(props: ExCheckboxProps) {
   const {
     showCheckAll,
-    read,
-    readValue,
+    readonly,
+    readonlyValue,
     formItemProps,
     fieldNames,
     options,
@@ -27,9 +27,9 @@ export default function ExCheckbox(props: ExCheckboxProps) {
 
   const list = transformTarget({ dataSource, options, valueEnum }, fieldNames);
 
-  if (read) {
-    if (readValue && readValue.length > 0) {
-      return readValue
+  if (readonly) {
+    if (readonlyValue && readonlyValue.length > 0) {
+      return readonlyValue
         .map((item: string) => {
           const find = list.find((child) => item.toString() === child.value.toString());
           return find.label;

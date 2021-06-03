@@ -121,6 +121,7 @@ const ExTable = <T extends Record<string, any>, U extends ParamsType = {}, Value
             ...columnsProps,
         };
         column.render = (dom, entity, index, action) => {
+            if (!entity[field.key]) return rem().constants.DEFAULT_VALUE
             let current = dom;
             if (componentName) {
                 const trigger = (openid: string) => floatRef.current?.open(openid, entity);

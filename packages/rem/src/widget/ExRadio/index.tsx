@@ -15,19 +15,19 @@ export interface ExRadioProps extends IRequest, BaseFieldType, RadioGroupProps {
 
 export default function ExRadio(props: ExRadioProps & { mode?: 'Image' }) {
 
-    const {read, readValue, formItemProps, fieldNames, request, options, valueEnum, mode, ...other} = props
+    const {readonly, readonlyValue, formItemProps, fieldNames, request, options, valueEnum, mode, ...other} = props
 
     const {dataSource} = useRequest(request);
 
     const list = transformTarget({dataSource, options, valueEnum}, fieldNames);
 
-    if (read) {
-        return (!isEmpty(readValue) && list.length)
+    if (readonly) {
+        return (!isEmpty(readonlyValue) && list.length)
             ? list.find((item: any) => {
-                if (dataType(readValue) === 'boolean') {
-                    return item.value === readValue
+                if (dataType(readonlyValue) === 'boolean') {
+                    return item.value === readonlyValue
                 }
-                return item.value.toString() === readValue.toString()
+                return item.value.toString() === readonlyValue.toString()
             })?.label
             : <span>{rem().constants.DEFAULT_VALUE}</span>
     }

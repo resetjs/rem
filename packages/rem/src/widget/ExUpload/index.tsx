@@ -25,7 +25,7 @@ function normFile(e: any) {
 }
 
 export default function ExUpload(props: ExUploadProps) {
-    const {formItemProps, type, read, readValue, style, className, ...other} = props;
+    const {formItemProps, type, readonly, readonlyValue, style, className, ...other} = props;
 
     const formItemContent = (
         <Form.Item
@@ -38,10 +38,10 @@ export default function ExUpload(props: ExUploadProps) {
         </Form.Item>
     );
 
-    if (read) {
-        return readValue ? (
+    if (readonly) {
+        return readonlyValue ? (
             <Space>
-                {readValue?.split(',').map((url: string) => (
+                {readonlyValue?.split(',').map((url: string) => (
                     <Image key={url} className={className} style={style} src={url}/>
                 ))}
             </Space>

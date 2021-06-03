@@ -8,7 +8,7 @@ import type { BaseFieldType } from '../../interface';
 interface ExInputNumberProps extends BaseFieldType, InputNumberProps {}
 
 export default function ExInputNumber(props: ExInputNumberProps) {
-  const { read, readValue, formItemProps, ...other } = props;
+  const { readonly, readonlyValue, formItemProps, ...other } = props;
 
   const content = formItemProps ? (
     <ProFormDigit {...formItemProps} fieldProps={other} />
@@ -16,8 +16,8 @@ export default function ExInputNumber(props: ExInputNumberProps) {
     <InputNumber {...other} />
   );
 
-  return read ? (
-    <>{readValue ? other.formatter?.(readValue) || readValue : rem().constants.DEFAULT_VALUE}</>
+  return readonly ? (
+    <>{readonlyValue ? other.formatter?.(readonlyValue) || readonlyValue : rem().constants.DEFAULT_VALUE}</>
   ) : (
     content
   );

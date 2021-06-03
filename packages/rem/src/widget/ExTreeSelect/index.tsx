@@ -19,8 +19,8 @@ export default function ExTreeSelect(props: ExTreeSelectProps) {
   const {
     options,
     valueEnum,
-    read,
-    readValue,
+    readonly,
+    readonlyValue,
     request,
     mode,
     formItemProps,
@@ -71,9 +71,9 @@ export default function ExTreeSelect(props: ExTreeSelectProps) {
 
   const content = <TreeSelect {...params} {...other} treeData={list} />;
 
-  if (read) {
-    return readValue ? (
-      readValue
+  if (readonly) {
+    return readonlyValue ? (
+      readonlyValue
         .toString()
         .split(',')
         .map((value: string, i: number) => {

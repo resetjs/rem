@@ -32,8 +32,8 @@ type FormProps = {
 type OptionType = {
     trigger?: (openid: string) => void;
     entity?: any;
-    read?: boolean;
-    readValue?: any;
+    readonly?: boolean;
+    readonlyValue?: any;
 };
 
 type CreateOptions = {
@@ -191,15 +191,15 @@ class Factory {
                 ...field.formItemProps,
             };
 
-            const read =
-                (field.hasOwnProperty('read') && field.read) ||
-                (!field.hasOwnProperty('read') && formProps?.readonly);
+            const readonly =
+                (field.hasOwnProperty('readonly') && field.readonly) ||
+                (!field.hasOwnProperty('readonly') && formProps?.readonly);
 
             let optionProps;
-            if (read) {
+            if (readonly) {
                 optionProps = {
-                    read: true,
-                    readValue: formProps?.initialValues?.[field.key],
+                    readonly: true,
+                    readonlyValue: formProps?.initialValues?.[field.key],
                 };
             }
 
@@ -208,12 +208,12 @@ class Factory {
             const readProps: any = {name: undefined, extra: undefined, required: false};
 
             // 仅当全局read模式, 才格式化样式
-            if (!field.hasOwnProperty('read') && formProps?.readonly) {
+            if (!field.hasOwnProperty('readonly') && formProps?.readonly) {
                 readProps.labelCol = {span: 0};
                 readProps.wrapperCol = {span: 24};
             }
 
-            if (field.extra && !read) {
+            if (field.extra && !readonly) {
                 dom = (
                     <FormItem
                         key={field.key}
@@ -228,7 +228,7 @@ class Factory {
             }
 
             if (field.hasOwnProperty('render')) {
-                const temp = read
+                const temp = readonly
                     ? readProps
                     : {name: field.formItemProps?.rules ? field.key : undefined};
                 return (
@@ -238,7 +238,7 @@ class Factory {
                 );
             }
 
-            return read ? (
+            return readonly ? (
                 <Form.Item {...formItemProps} {...readProps}>
                     {dom}
                 </Form.Item>

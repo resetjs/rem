@@ -49,8 +49,8 @@ interface IAuthority {
 }
 
 interface BaseFieldType {
-  read?: boolean;
-  readValue?: any;
+  readonly?: boolean;
+  readonlyValue?: any;
   formItemProps?: FormItemProps;
   valueEnum?: IValueEnum;
 }
@@ -152,7 +152,7 @@ interface FormField extends Field {
   formItemProps?: FormItemProps;
 
   // 表单组件是否为只读类型
-  read?: boolean;
+  readonly?: boolean;
 
   //  扩展组件, 默认在右边
   extra?: React.ReactNode;

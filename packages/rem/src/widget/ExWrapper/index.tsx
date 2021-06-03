@@ -61,6 +61,8 @@ type ExWrapperProps = {
     current?: number
     //  操作配置
     operation?: OperationConfig;
+    // 每一个页面都是单独的
+    alone?: true
 }
 
 export const ExWrapperContext = React.createContext<| {
@@ -94,6 +96,7 @@ function ExWrapper(props: ExWrapperProps) {
         onOkCallback,
         current: userCurrent = 0,
         operation,
+        alone
     } = props;
 
     const [current, setCurrent] = useState(userCurrent);
@@ -217,7 +220,7 @@ function ExWrapper(props: ExWrapperProps) {
 
     const renderHandle = () => {
         const buttons = [];
-        if (current === 0 && !operation?.hideCancel) {
+        if ((current === 0 || alone) && !operation?.hideCancel) {
             buttons.push(
                 <Button className={'rem-form-btn'}
                         key="back"
@@ -236,7 +239,7 @@ function ExWrapper(props: ExWrapperProps) {
             )
         }
 
-        if (!readonly && indicator === 'step' && current > 0 && !operation?.hidePrevButton) {
+        if (!readonly && indicator === 'step' && current > 0 && !operation?.hidePrevButton && !alone) {
             buttons.push(
                 <Button
                     className={'rem-form-btn'}
