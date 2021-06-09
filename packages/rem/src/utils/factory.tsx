@@ -1,7 +1,7 @@
 import React from 'react';
 import {Button, Form, Popconfirm} from 'antd';
 import type {Field, FormField, TableField} from '../interface';
-import {ProFormText} from '@ant-design/pro-form';
+import ProForm, {ProFormText} from '@ant-design/pro-form';
 import type {ColProps} from 'antd/lib/grid/col';
 
 import ExCheckbox from '../widget/ExCheckbox';
@@ -175,77 +175,98 @@ class Factory {
         return filterFields(fields).map((field) => this.createField(field, {optionProps}));
     }
 
+    static filterForm(fields: (FormField | FormField[])[]) {
+        const arr: (FormField | FormField[])[] = [];
+        fields.forEach(field => {
+            if (Array.isArray(field)) {
+                const temp = filterFields(field)
+                if (temp.length > 0) arr.push(temp)
+            } else if (filterField(field)) {
+                arr.push(field)
+            }
+        })
+        return arr;
+    }
+
     //  创建表单对象
-    static createFormFields(fields: FormField[], formProps: FormProps): React.ReactNode[] {
-        return filterFields(fields).map((field) => {
-            const rules = [{required: field.required || false}];
+    static createFormFields(field: (FormField | FormField[]), formProps: FormProps): React.ReactNode {
 
-            const formItemProps: any = {
-                rules,
-                key: field.key,
-                name: field.key,
-                label: field.label,
-                hidden: formProps?.hidden,
-                noStyle: !!field.extra,
-                required: field.required,
-                ...field.formItemProps,
+        if (Array.isArray(field)) {
+            const keys = field.map(item => item.key)
+            return (
+                <ProForm.Group key={keys.join('-')}>
+                    {field.map(item => Factory.createFormFields(item, formProps))}
+                </ProForm.Group>
+            )
+        }
+
+        const rules = [{required: field.required || false}];
+
+        const formItemProps: any = {
+            rules,
+            key: field.key,
+            name: field.key,
+            label: field.label,
+            hidden: formProps?.hidden,
+            noStyle: !!field.extra,
+            required: field.required,
+            ...field.formItemProps,
+        };
+
+        const readonly =
+            (field.hasOwnProperty('readonly') && field.readonly) ||
+            (!field.hasOwnProperty('readonly') && formProps?.readonly);
+
+        let optionProps;
+        if (readonly) {
+            optionProps = {
+                readonly: true,
+                readonlyValue: formProps?.initialValues?.[field.key],
             };
+        }
 
-            const readonly =
-                (field.hasOwnProperty('readonly') && field.readonly) ||
-                (!field.hasOwnProperty('readonly') && formProps?.readonly);
+        let dom = create(field, {formItemProps, optionProps});
 
-            let optionProps;
-            if (readonly) {
-                optionProps = {
-                    readonly: true,
-                    readonlyValue: formProps?.initialValues?.[field.key],
-                };
-            }
+        const readProps: any = {name: undefined, extra: undefined, required: false};
 
-            let dom = create(field, {formItemProps, optionProps});
+        // 仅当全局read模式, 才格式化样式
+        if (!field.hasOwnProperty('readonly') && formProps?.readonly) {
+            readProps.labelCol = {span: 0};
+            readProps.wrapperCol = {span: 24};
+        }
 
-            const readProps: any = {name: undefined, extra: undefined, required: false};
-
-            // 仅当全局read模式, 才格式化样式
-            if (!field.hasOwnProperty('readonly') && formProps?.readonly) {
-                readProps.labelCol = {span: 0};
-                readProps.wrapperCol = {span: 24};
-            }
-
-            if (field.extra && !readonly) {
-                dom = (
-                    <FormItem
-                        key={field.key}
-                        hidden={formItemProps.hidden}
-                        label={field.label}
-                        required={field.required}
-                    >
-                        {dom}
-                        {field.extra}
-                    </FormItem>
-                );
-            }
-
-            if (field.hasOwnProperty('render')) {
-                const temp = readonly
-                    ? readProps
-                    : {name: field.formItemProps?.rules ? field.key : undefined};
-                return (
-                    <Form.Item {...formItemProps} {...temp}>
-                        {field.render?.(dom, {formItemProps, ...optionProps})}
-                    </Form.Item>
-                );
-            }
-
-            return readonly ? (
-                <Form.Item {...formItemProps} {...readProps}>
+        if (field.extra && !readonly) {
+            dom = (
+                <FormItem
+                    key={field.key}
+                    hidden={formItemProps.hidden}
+                    label={field.label}
+                    required={field.required}
+                >
                     {dom}
-                </Form.Item>
-            ) : (
-                dom
+                    {field.extra}
+                </FormItem>
             );
-        });
+        }
+
+        if (field.hasOwnProperty('render')) {
+            const temp = readonly
+                ? readProps
+                : {name: field.formItemProps?.rules ? field.key : undefined};
+            return (
+                <FormItem {...formItemProps} {...temp}>
+                    {field.render?.(dom, {formItemProps, ...optionProps})}
+                </FormItem>
+            );
+        }
+
+        return readonly
+            ? (
+                <FormItem {...formItemProps} {...readProps}>
+                    {dom}
+                </FormItem>
+            )
+            : dom
     }
 }
 

@@ -1,21 +1,11 @@
-import ProTable, {ActionType, ProTableProps} from "@ant-design/pro-table";
+import ProTable, {ActionType} from "@ant-design/pro-table";
 import React, {useEffect, useMemo, useRef} from "react";
 import {ParamsType} from "@ant-design/pro-provider";
-import {ProColumns} from "@ant-design/pro-table/lib/typing";
 import FloatLayout, {FloatActionType, FloatType} from "../../layouts/FloatLayout";
+import {ExProTableProps} from "./typing";
 
-export interface ExSimpleTableProps<T, ValueType> {
-    columns: (ProColumns<T, ValueType> & {
-        binding?: React.ReactNode,
-        bindingProps?: any,
-        authority?: string
-    })[]
-    floatRef?: React.MutableRefObject<FloatActionType>;
-    handleCallback?: (actionRef: React.MutableRefObject<ActionType | undefined> | ((actionRef: ActionType) => void)) => void;
-}
+export default function ExProTable<T, U extends ParamsType, ValueType = 'text'>(props: ExProTableProps<T, U, ValueType>) {
 
-
-export default function ExSimpleTable<T, U extends ParamsType, ValueType = 'text'>(props: Omit<ProTableProps<T, U, ValueType>, "columns"> & ExSimpleTableProps<T, ValueType>) {
     const {
         columns,
         floatRef: propsFloatRef,
@@ -81,7 +71,7 @@ export default function ExSimpleTable<T, U extends ParamsType, ValueType = 'text
     return (
         <>
             <ProTable columns={proColumns} actionRef={propsActionRef} {...userRest} />
-            <FloatLayout floatRef={floatRef} handleCallback={defaultHandleCallback} dataSource={components}/>
+            <FloatLayout floatRef={floatRef} dataSource={components} handleCallback={defaultHandleCallback}/>
         </>
     )
 }

@@ -18,6 +18,8 @@ import ExUpload from './widget/ExUpload';
 import ExWrapper, {ExWrapperContext} from './widget/ExWrapper';
 import type {ElementProps} from './layouts/ElementContainer';
 import ElementContainer from './layouts/ElementContainer';
+import ExProTable from "./widget/ExProTable";
+
 import type {
     AuthorityRule,
     BaseFieldType,
@@ -31,6 +33,7 @@ import type {
     RequestResponse,
     TableField,
 } from './interface';
+
 import type {FloatActionType, FloatLayoutProps, FloatProps, FloatType,} from './layouts/FloatLayout';
 import FloatLayout from './layouts/FloatLayout';
 import type {PageLayoutProps} from './layouts/PageLayout';
@@ -88,7 +91,8 @@ export {
     ExUpload,
     Manual,
     SimpleForm,
-    ExWrapper
+    ExWrapper,
+    ExProTable
 };
 
 export default rem;
