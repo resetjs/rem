@@ -45,9 +45,24 @@ export const PopupContext = React.createContext<| {
 
 function PopupContainer(props: FloatLayoutProps) {
 
-    const {dataSource, handleCallback} = props;
-
+    const {dataSource, floatRef, handleCallback} = props;
     const [floatValueEnum, setFloatValueEnum] = useState<FloatDataType>();
+
+    useEffect(() => {
+        if (dataSource && dataSource.length > 0 && !floatValueEnum) {
+            const obj: any = {};
+            dataSource.forEach((item) => {
+                if (Array.isArray(item.openid)) {
+                    item.openid.forEach((key) => {
+                        obj[key] = {data: undefined, visible: false};
+                    });
+                } else {
+                    obj[item.openid] = {data: undefined, visible: false};
+                }
+            });
+            setFloatValueEnum(obj);
+        }
+    }, [dataSource]);
 
     const handleOperation = (openid: string, data: any, visible = true) => {
         if (!floatValueEnum || !floatValueEnum[openid]) return;
@@ -66,6 +81,16 @@ function PopupContainer(props: FloatLayoutProps) {
             }, 200);
         }
     };
+
+    const userAction: FloatActionType = {
+        open: (key: string, data: any) => handleOperation(key, data, true),
+    };
+
+    useEffect(() => {
+        if (floatRef && typeof floatRef !== 'function') {
+            floatRef.current = userAction;
+        }
+    }, [floatValueEnum]);
 
     const onClose = (openid: string) => {
         handleOperation(openid, null, false);
@@ -88,7 +113,7 @@ function PopupContainer(props: FloatLayoutProps) {
                         findOpenId = item.openid;
                     }
                     const current = floatValueEnum[findOpenId];
-                    return React.cloneElement(<item.component />, {
+                    return React.cloneElement(<item.component/>, {
                         key: findOpenId,
                         openid: findOpenId,
                         initValues: current?.data,
