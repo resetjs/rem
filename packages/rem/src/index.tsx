@@ -19,6 +19,7 @@ import ExWrapper, {ExWrapperContext} from './widget/ExWrapper';
 import type {ElementProps} from './layouts/ElementContainer';
 import ElementContainer from './layouts/ElementContainer';
 import ExProTable from "./widget/ExProTable";
+import PopupContainer from "./widget/PopupContainer";
 
 import type {
     AuthorityRule,
@@ -31,7 +32,7 @@ import type {
     ProFieldRequestListData,
     RequestOptions,
     RequestResponse,
-    TableField,
+    TableField
 } from './interface';
 
 import type {FloatActionType, FloatLayoutProps, FloatProps, FloatType,} from './layouts/FloatLayout';
@@ -92,7 +93,8 @@ export {
     Manual,
     SimpleForm,
     ExWrapper,
-    ExProTable
+    ExProTable,
+    PopupContainer
 };
 
 export default rem;
