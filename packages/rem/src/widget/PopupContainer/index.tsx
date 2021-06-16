@@ -42,44 +42,48 @@ function PopupContainer(props: PopupContainerProps) {
         }
     }, [])
 
-    return Object.keys(components).map(key => {
-        const {visible, component: Component, opts} = components[key];
-        const onClose = () => {
-            components[key].visible = false
-            setComponents({...components})
-        };
-        const dom = (
-            <React.Suspense fallback={null}>
-                <Component
-                    onClose={onClose}
-                    handleCallback={opts?.handleCallback}/>
-            </React.Suspense>
-        )
+    return <>
+        {
+            Object.keys(components).map(key => {
+                const {visible, component: Component, opts} = components[key];
+                const onClose = () => {
+                    components[key].visible = false
+                    setComponents({...components})
+                };
+                const dom = (
+                    <React.Suspense fallback={null}>
+                        <Component
+                            onClose={onClose}
+                            handleCallback={opts?.handleCallback}/>
+                    </React.Suspense>
+                )
 
-        const defaultProps = {
-            key,
-            visible,
-            onClose,
-            closable: false,
-            destroyOnClose: true,
-            maskClosable: false,
-            width: opts?.width
+                const defaultProps = {
+                    key,
+                    visible,
+                    onClose,
+                    closable: false,
+                    destroyOnClose: true,
+                    maskClosable: false,
+                    width: opts?.width
+                }
+
+                if (opts?.mode === 'drawer') {
+                    return (
+                        <Drawer placement="right" {...defaultProps}>{dom}</Drawer>
+                    )
+                }
+
+                const {onClose: onCancel, ...rest} = defaultProps
+                return (
+                    <Modal bodyStyle={{padding: 0, position: "relative"}}
+                           footer={false}
+                           onCancel={onCancel}
+                           {...rest}>{dom}</Modal>
+                )
+            })
         }
-
-        if (opts?.mode === 'drawer') {
-            return (
-                <Drawer placement="right" {...defaultProps}>{dom}</Drawer>
-            )
-        }
-
-        const {onClose: onCancel, ...rest} = defaultProps
-        return (
-            <Modal bodyStyle={{padding: 0, position: "relative"}}
-                   footer={false}
-                   onCancel={onCancel}
-                   {...rest}>{dom}</Modal>
-        )
-    })
+    </>
 }
 
 export default PopupContainer;
