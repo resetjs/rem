@@ -4,7 +4,6 @@ import ExDatePicker from './widget/ExDatePicker';
 import ExForm from './widget/ExForm';
 import ExInputNumber from './widget/ExInputNumber';
 import ExInputText from './widget/ExInputText';
-import PopupWindow from './widget/PopupWindow';
 import ExRadio from './widget/ExRadio';
 import ExSelect from './widget/ExSelect';
 import ExSwitch from './widget/ExSwitch';
@@ -15,7 +14,7 @@ import Manual from './widget/Manual';
 import SimpleForm from './widget/SimpleForm';
 import ExTable from './widget/ExTable';
 import ExUpload from './widget/ExUpload';
-import ExWrapper, {ExWrapperContext} from './widget/ExWrapper';
+import Wrapper from './widget/Wrapper';
 import type {ElementProps} from './layouts/ElementContainer';
 import ElementContainer from './layouts/ElementContainer';
 import ExProTable from "./widget/ExProTable";
@@ -40,14 +39,14 @@ import FloatLayout from './layouts/FloatLayout';
 import type {PageLayoutProps} from './layouts/PageLayout';
 import PageLayout from './layouts/PageLayout';
 
-import rem, {Rem} from './rem';
-
 import './utils/factory';
 import './utils/transforms';
 import useHandle from './hooks/useHandle';
 import useRequest from './hooks/useRequest';
 
 import './index.less';
+
+import createRem from './rem'
 
 export type {
     Field,
@@ -69,7 +68,7 @@ export type {
     ElementProps,
 };
 
-export {useHandle, useRequest, ExWrapperContext, Rem};
+export {useHandle, useRequest, createRem};
 
 export {
     ElementContainer,
@@ -78,7 +77,6 @@ export {
     ExCascader,
     ExCheckbox,
     ExDatePicker,
-    PopupWindow,
     ExForm,
     ExInputNumber,
     ExInputText,
@@ -92,9 +90,9 @@ export {
     ExUpload,
     Manual,
     SimpleForm,
-    ExWrapper,
+    Wrapper,
     ExProTable,
     PopupContainer
 };
 
-export default rem;
+export default  createRem

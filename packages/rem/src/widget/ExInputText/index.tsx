@@ -2,7 +2,7 @@ import { ProFormText, ProFormTextArea } from '@ant-design/pro-form';
 import React from 'react';
 import { Input } from 'antd';
 import type { BaseFieldType } from '../../interface';
-import rem from '../../rem';
+import {constants} from '../../rem';
 
 interface ExInputTextProps extends BaseFieldType {
   type?: 'Text' | 'TextArea';
@@ -44,7 +44,7 @@ export default function ExInputText(props: ExInputTextProps) {
           {typeof suffix === 'string' && suffix}
         </div>
       ) : (
-        rem().constants.DEFAULT_VALUE
+        constants.DEFAULT_VALUE
       )}
     </>
   ) : (

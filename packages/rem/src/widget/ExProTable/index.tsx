@@ -3,7 +3,6 @@ import React, {useContext, useEffect, useMemo, useRef} from "react";
 import {ParamsType} from "@ant-design/pro-provider";
 import FloatLayout, {FloatActionType, FloatType} from "../../layouts/FloatLayout";
 import {ExProTableProps} from "./typing";
-import {PopupContext} from "../PopupContainer";
 
 export default function ExProTable<T, U extends ParamsType, ValueType = 'text'>(props: ExProTableProps<T, U, ValueType>) {
 
@@ -69,19 +68,19 @@ export default function ExProTable<T, U extends ParamsType, ValueType = 'text'>(
     //     return [arr, temp, callback]
     // }, [])
 
-    const context = useContext(PopupContext)
-
-    useEffect(() => {
-        context?.handleCallback(
-            () => {
-                if (handleCallback) {
-                    handleCallback(actionRef);
-                } else {
-                    actionRef.current?.clearSelected?.();
-                    actionRef.current?.reload();
-                }
-            });
-    }, [])
+    // const context = useContext(PopupContext)
+    //
+    // useEffect(() => {
+    //     context?.handleCallback(
+    //         () => {
+    //             if (handleCallback) {
+    //                 handleCallback(actionRef);
+    //             } else {
+    //                 actionRef.current?.clearSelected?.();
+    //                 actionRef.current?.reload();
+    //             }
+    //         });
+    // }, [])
 
 
     return <ProTable columns={columns} actionRef={propsActionRef} {...userRest} />

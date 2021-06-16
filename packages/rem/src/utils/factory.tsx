@@ -15,7 +15,7 @@ import ExInputText from '../widget/ExInputText';
 import ExInputNumber from '../widget/ExInputNumber';
 import ExDatePicker from '../widget/ExDatePicker';
 import ExSwitch from '../widget/ExSwitch';
-import rem from '../rem';
+import {permission} from '../rem';
 
 const FormItem = Form.Item;
 
@@ -27,6 +27,7 @@ type FormProps = {
     hidden?: boolean;
     wrapperCol?: ColProps;
     labelCol?: ColProps;
+    layout?: 'horizontal' | 'vertical' | 'inline'
 };
 
 type OptionType = {
@@ -43,7 +44,7 @@ type CreateOptions = {
 
 function filterField(field: any) {
     return (
-        rem().permission.checkAuthority(field.authority) &&
+        permission.checkAuthority(field.authority) &&
         (!field.hasOwnProperty('show') || field.show) &&
         !!(field.componentName || field.render)
     );

@@ -1,88 +1,112 @@
-import type {AuthorityRule, RequestOptions} from './interface';
-import React from 'react';
-import type {UploadRequestOption as RcCustomRequestOptions} from 'rc-upload/lib/interface';
-import {Result} from 'antd';
-import request from 'umi-request';
+import {ConstantsType, IPlugin, PermissionType} from "./Plugin";
+import {RequestOptions} from "./interface";
+import {Result} from "antd";
+import React, {createContext} from "react";
 
-const umiRequest = request;
 
-type PermissionType = {
-    checkAuthority: (authority: string | string[] | AuthorityRule | undefined) => boolean;
-    errorPage: React.ReactNode;
-};
+//  权限相关的, 用于判断全局权限的结果
 
-type ConstantsType = {
-    DEFAULT_VALUE: string | '-';
-};
-
-export interface RemConfig {
-    permission: PermissionType;
-
-    request: <T>(options: RequestOptions) => Promise<T>;
-
-    uploadFile: (options: RcCustomRequestOptions) => void;
-
-    constants: ConstantsType;
+const permission = {
+    checkAuthority: (authority: any) => {
+        console.log('----')
+        console.log(authority)
+        return true;
+    },
+    errorPage: (
+        <Result
+            status="403"
+            title="403"
+            subTitle="Sorry, you are not authorized to access this page."
+        />
+    ),
 }
 
-const defaultConfig: RemConfig = {
-
-    constants: {
-        DEFAULT_VALUE: '-',
-    },
-
-    permission: {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        checkAuthority: (authority?: string | string[] | AuthorityRule | undefined) => {
-            return true;
-        },
-        errorPage: (
-            <Result
-                status="403"
-                title="403"
-                subTitle="Sorry, you are not authorized to access this page."
-            />
-        ),
-    },
-
-    request: (options: RequestOptions) => {
-        const {url, ...other} = options;
-        return umiRequest(url, other);
-    },
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    uploadFile(options: RcCustomRequestOptions) {
+function setPermission(uPermissionType: PermissionType) {
+    const {checkAuthority, errorPage} = uPermissionType
+    if (checkAuthority) {
+        permission.checkAuthority = checkAuthority
+    }
+    if (errorPage) {
+        permission.errorPage = errorPage as JSX.Element
     }
 }
 
 
-class Rem {
-
-    static instance = new Rem(defaultConfig)
-
-    constants!: ConstantsType
-    request!: (<T>(options: RequestOptions) => Promise<T>)
-    permission!: PermissionType;
-    uploadFile!: ((options: RcCustomRequestOptions<any>) => void)
-
-    protected constructor(config: RemConfig) {
-        this.setPlugins(config)
-    }
-
-    static applyPlugins(config: RemConfig) {
-        this.instance.setPlugins(config)
-    }
-
-    setPlugins(config: RemConfig) {
-        const {constants, permission, request: configRequest, uploadFile} = config;
-        if (constants) this.constants = constants;
-        if (permission) this.permission = permission;
-        if (configRequest) this.request = configRequest;
-        if (uploadFile) this.uploadFile = uploadFile;
-    }
+//  全局请求
+// eslint-disable-next-line import/no-mutable-exports
+let request = (options: RequestOptions) => {
+    const {url, ...rest} = options;
+    return fetch(url, rest);
 }
 
-export {Rem}
 
-export default () => Rem.instance
+//  上传
+const uploadFile = (...params: any) => {
+    console.log(params)
+}
+
+//  常量集
+const constants: ConstantsType = {
+    DEFAULT_VALUE: '-',
+}
+
+function setConstants(uConstantsType: ConstantsType) {
+    const {DEFAULT_VALUE} = uConstantsType
+    if (DEFAULT_VALUE) constants.DEFAULT_VALUE = DEFAULT_VALUE
+}
+
+// eslint-disable-next-line import/no-mutable-exports
+let PopupContext: React.Context<{
+    trigger: (component: React.ReactNode, handleCallback: Function) => void;
+}>;
+
+let WrapperContext: React.Context<{
+    //  监听当前所在模块的下一步操作
+    setOnClickNextListener: (listener: Function) => void
+    //  获取当前所在模块数据集
+    getCurrent: () => any
+    //  设置当前所在模块数据集
+    setCurrent: (value: any) => void
+    //  获取Wrapper所有模块数据集 tips:如果模块间有重复的数据属性, 以最后的模块的为准, 请保证全局的唯一性
+    getAll: () => any
+    //  获取Wrapper某个模块的数据集
+    get: (key: string) => any
+}>;
+
+
+function createRem(pluginOpts?: IPlugin) {
+
+    if (pluginOpts?.constants) {
+        setConstants(pluginOpts.constants)
+    }
+
+    if (pluginOpts?.constants) {
+        setConstants(pluginOpts.constants)
+    }
+
+    if (pluginOpts?.permission) {
+        setPermission(pluginOpts.permission)
+    }
+
+    if (pluginOpts?.request) {
+        request = pluginOpts.request
+    }
+
+    // @ts-ignore
+    PopupContext = createContext({})
+
+    // @ts-ignore
+    WrapperContext = createContext({})
+}
+
+export {
+    permission,
+    uploadFile,
+    constants,
+    PopupContext,
+    WrapperContext,
+    request
+}
+
+export default createRem
 

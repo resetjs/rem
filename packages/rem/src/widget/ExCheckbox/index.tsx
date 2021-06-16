@@ -3,7 +3,7 @@ import { Checkbox, Form } from 'antd';
 import type { CheckboxGroupProps } from 'antd/lib/checkbox';
 import useRequest from '../../hooks/useRequest';
 import { transformTarget } from '../../utils/transforms';
-import rem from '../../rem';
+import {constants} from '../../rem';
 import type { BaseFieldType, IRequest } from '../../interface';
 
 export interface ExCheckboxProps extends IRequest, BaseFieldType, CheckboxGroupProps {
@@ -36,7 +36,7 @@ export default function ExCheckbox(props: ExCheckboxProps) {
         })
         .join(',');
     }
-    return <span>{rem().constants.DEFAULT_VALUE}</span>;
+    return <span>{constants.DEFAULT_VALUE}</span>;
   }
 
   return formItemProps ? (

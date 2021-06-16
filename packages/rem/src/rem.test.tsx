@@ -1,14 +1,10 @@
-import rem from './rem';
-import React from 'react';
+import createRem, {constants} from './rem';
 
 test('Rem', async () => {
-
-  rem().applyPlugins({
+  createRem({
     constants: {
-      DEFAULT_VALUE: '-11111111111111',
-    },
-  });
-
-  console.log(rem().constants.DEFAULT_VALUE);
-
+      defaultValue: 'xxxx'
+    }
+  })
+  console.log(constants)
 });

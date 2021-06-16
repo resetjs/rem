@@ -1,6 +1,6 @@
 import React, {Suspense, useEffect, useState} from 'react';
-import rem from '../rem';
 import type {IAuthority} from '../interface';
+import {permission} from '../rem';
 
 interface FloatType extends IAuthority {
     //  浮动组件唯一标识, 该标识具备多个关联的组件, 逗号分隔
@@ -36,7 +36,7 @@ interface FloatActionType {
 }
 
 function filterDataSource(dataSource: any[] = []) {
-    const filter = dataSource?.filter((item) => rem().permission.checkAuthority(item.authority)) || [];
+    const filter = dataSource?.filter((item) => permission.checkAuthority(item.authority)) || [];
     //  过滤重复组件
     const components: FloatType[] = [];
     const temp: any = {};

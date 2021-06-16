@@ -6,7 +6,7 @@ import useRequest from '../../hooks/useRequest';
 import type {BaseFieldType, IRequest} from '../../interface';
 import type {RadioGroupProps} from 'antd/lib/radio/interface';
 import {transformTarget} from '../../utils/transforms';
-import rem from '../../rem';
+import {constants} from '../../rem';
 import {dataType, isEmpty} from '../../utils/utils';
 
 export interface ExRadioProps extends IRequest, BaseFieldType, RadioGroupProps {
@@ -29,7 +29,7 @@ export default function ExRadio(props: ExRadioProps & { mode?: 'Image' }) {
                 }
                 return item.value.toString() === readonlyValue.toString()
             })?.label
-            : <span>{rem().constants.DEFAULT_VALUE}</span>
+            : <span>{constants.DEFAULT_VALUE}</span>
     }
     return (
         <div className={classNames({'radio-image-mode': mode === 'Image'})} style={formItemProps?.style}>

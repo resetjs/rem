@@ -12,7 +12,7 @@ import useHandle from '../../hooks/useHandle';
 import ElementContainer from '../../layouts/ElementContainer';
 import type {TableAlertProps} from '@ant-design/pro-table/lib/components/Alert';
 import type {SearchProps} from 'antd/lib/input';
-import rem from '../../rem';
+import {constants, permission} from '../../rem';
 
 export interface ExTableProps<T, U, ValueType> extends ProTableProps<T, U, ValueType>, IAuthority {
     simpleSearch?:
@@ -73,7 +73,7 @@ const ExTable = <T extends Record<string, any>, U extends ParamsType = {}, Value
 
     const {onHandle} = useHandle();
 
-    const {checkAuthority} = rem().permission;
+    const {checkAuthority} = permission;
 
     const [actionVisibleIndex, setActionVisibleIndex] = useState(-1);
     const [selectedRows, setSelectedRows] = useState<any[]>(sRows || []);
@@ -121,7 +121,7 @@ const ExTable = <T extends Record<string, any>, U extends ParamsType = {}, Value
             ...columnsProps,
         };
         column.render = (dom, entity, index, action) => {
-            if (!entity[field.key]) return rem().constants.DEFAULT_VALUE
+            if (!entity[field.key]) return constants.DEFAULT_VALUE
             let current = dom;
             if (componentName) {
                 const trigger = (openid: string) => floatRef.current?.open(openid, entity);

@@ -5,7 +5,7 @@ import difference from 'lodash/difference';
 import type { ColumnsType } from 'antd/lib/table/interface';
 import type { BaseFieldType, IRequest } from '../../interface';
 import useRequest from '../../hooks/useRequest';
-import rem from '../../rem';
+import {constants} from '../../rem'
 
 export interface ExTransferProps<T = any> extends TransferProps<T>, IRequest, BaseFieldType {
   onChange: (nextTargetKeys: string[]) => void;
@@ -23,7 +23,7 @@ export default function ExTransfer(props: ExTransferProps) {
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [targetKeys, setTargetKeys] = useState<string[]>([]);
 
-  const defaultValue = rem().constants.DEFAULT_VALUE;
+  const defaultValue = constants.DEFAULT_VALUE;
 
   const [formatReadValue, setFormatReadValue] = useState<string | undefined>(defaultValue);
 

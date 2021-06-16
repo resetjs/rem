@@ -6,8 +6,7 @@ import type {FormField} from '../../interface';
 import Factory from '../../utils/factory';
 import {formatToArray, formatUploadValue, parseCol, parseUploadValue} from '../../utils/transforms';
 
-import './index.less';
-import {ExWrapperContext} from "../ExWrapper";
+import {WrapperContext} from "../Wrapper";
 
 export interface ExFormProps extends Omit<ProFormProps, "fields"> {
     // 表单成员
@@ -111,7 +110,7 @@ function ExForm(props: ExFormProps) {
         );
     };
 
-    const context = useContext(ExWrapperContext)
+    const context = useContext(WrapperContext)
 
     useEffect(() => {
         context?.setOnClickNextListener(
@@ -128,6 +127,7 @@ function ExForm(props: ExFormProps) {
                     initialValues,
                     labelCol: formProps.labelCol,
                     wrapperCol: formProps.wrapperCol,
+                    layout: formProps.layout
                 }))
             }
         </ProForm>

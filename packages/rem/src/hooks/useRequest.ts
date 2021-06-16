@@ -12,7 +12,7 @@ export default function useRequest<T = any>(options?: RequestOptions) {
 
   const handleRequest = async () => {
     if (!options) return;
-    const res = await onHandle<T>(options);
+    const res = await onHandle(options);
     setDataSource(res);
   };
 
