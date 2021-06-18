@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useContext, useRef, useState} from "react";
 import {Button, message, Space, Steps} from "antd";
 import {useHistory} from "react-router-dom";
 
@@ -8,6 +8,7 @@ import useHandle from "../../hooks/useHandle";
 import './index.less'
 import ProCard from "@ant-design/pro-card";
 import {CloseOutlined} from "@ant-design/icons";
+import {PopupContext} from "../PopupContainer";
 
 type WrapperField = {
     //  组件唯一表示
@@ -55,8 +56,6 @@ type WrapperProps = {
     onOk?: <V = any> (values: V, onHandle: any) => Promise<any> | void
     //  提交回调
     onOkCallback?: (res: any) => void;
-    //  是否显示
-    visible?: boolean
     //  当前
     current?: number
     //  操作配置
@@ -88,14 +87,16 @@ function Wrapper(props: WrapperProps) {
         readonly,
         onChange,
         indicator,
-        onClose,
+        // onClose,
         onOk,
-        onOkCallback,
+        // onOkCallback,
         current: userCurrent = 0,
         operation,
         alone,
         indicatorPosition = 'left',
     } = props;
+
+    const {onClose, onOkCallback} = useContext(PopupContext)
 
     const [current, setCurrent] = useState(userCurrent);
 
@@ -119,23 +120,48 @@ function Wrapper(props: WrapperProps) {
         if (obj) onChange?.(nextCurrent, obj);
     };
 
-    const updateValues = async () => {
-        const {key} = validGroups[current]
-        if (storeRef.current[key] && storeRef.current[key].listeners.length > 0) {
-            const results = await Promise.all(storeRef.current[key].listeners.map(listener => listener()));
-            results.forEach(item => {
-                storeRef.current[key].value = {...storeRef.current[key].value, ...item};
-            })
+    const updateValues = async (index: number) => {
+        const {key} = validGroups[index]
+        if (storeRef.current[key]) {
+            let values = storeRef.current[key]?.value || {}
+            if (storeRef.current[key].listeners.length > 0) {
+                const results = await Promise.all(storeRef.current[key].listeners.map(listener => listener()));
+                results.forEach(item => {
+                    values = {...values, ...item}
+                })
+            }
+            const backingOut = await validGroups[index].onNext?.(storeRef.current[key]?.value, onHandle);
+            if (backingOut) values = {...values, ...backingOut}
+            storeRef.current[key].value = values
+            console.log('updateValues', values)
+            return values
         }
-        await validGroups[current].onNext?.(storeRef.current[key]?.value, onHandle);
+        return null
+    }
+
+    const replay = async () => {
+        try {
+            let values = {}
+            const results = await Promise.all(validGroups.map((_, index) => updateValues(index)));
+            results.forEach(item => {
+                values = {...values, ...item}
+            })
+            const result = await onOk?.(values, onHandle)
+            await onOkCallback?.(result)
+            onClose?.()
+        } catch (err) {
+            console.log(err)
+            if (err.message) message.error(err.message)
+        }
     }
 
     const getValues = () => {
-        let values = {};
-        Object.keys(storeRef.current).forEach(key => {
-            values = {...values, ...storeRef.current[key].value}
-        })
-        return values;
+        let temp = {}
+        Object.keys(storeRef.current)
+            .forEach(key => {
+                temp = {...temp, ...storeRef.current[key].value}
+            })
+        return temp
     }
 
     const renderHandle = () => {
@@ -180,7 +206,7 @@ function Wrapper(props: WrapperProps) {
                     loading={isLoading}
                     onClick={async () => {
                         try {
-                            await updateValues()
+                            await updateValues(current)
                             setCurrent(current + 1)
                         } catch (err) {
                             console.log(err.message)
@@ -199,17 +225,7 @@ function Wrapper(props: WrapperProps) {
                     loading={isLoading}
                     key="submit"
                     type="primary"
-                    onClick={async () => {
-                        try {
-                            await updateValues()
-                            const result = await onOk?.(getValues(), onHandle)
-                            await onOkCallback?.(result)
-                            onClose?.()
-                        } catch (err) {
-                            console.log(err.message)
-                            if (err.message) message.error(err.message)
-                        }
-                    }}
+                    onClick={replay}
                 >
                     {operation?.okText || '提 交'}
                 </Button>
@@ -264,7 +280,7 @@ function Wrapper(props: WrapperProps) {
             }}>
                 <div style={divStyle}>
                     <div className={'rem-form-wrapper'}>
-                        {child.children}
+                        {React.cloneElement(child.children, {global: storeRef.current})}
                     </div>
                     <div className={'rem-form-wrapper-submitter'}>
                         {renderHandle()}
