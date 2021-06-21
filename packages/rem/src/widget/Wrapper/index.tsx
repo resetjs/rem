@@ -1,14 +1,13 @@
-import React, {useContext, useRef, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import {Button, message, Space, Steps} from "antd";
 import {useHistory} from "react-router-dom";
-
 import {ManualProps} from "../Manual";
 import useHandle from "../../hooks/useHandle";
-
-import './index.less'
 import ProCard from "@ant-design/pro-card";
 import {CloseOutlined} from "@ant-design/icons";
 import {PopupContext} from "../PopupContainer";
+
+import './index.less'
 
 type WrapperField = {
     //  组件唯一表示
@@ -32,6 +31,10 @@ interface OperationConfig {
     nextText?: string;
     prevText?: string
     hidePrevButton?: boolean;
+}
+
+export interface WrapperActionType {
+    setFragmentsValue: (key: string, value: any) => void
 }
 
 type WrapperProps = {
@@ -62,6 +65,10 @@ type WrapperProps = {
     operation?: OperationConfig;
     // 每一个页面都是单独的
     alone?: true
+    // 是否展示等待页面
+    loading?: boolean
+    //  实例对象
+    wrapperRef?: React.MutableRefObject<WrapperActionType | undefined>;
 }
 
 export const WrapperContext = React.createContext<| {
@@ -94,6 +101,8 @@ function Wrapper(props: WrapperProps) {
         operation,
         alone,
         indicatorPosition = 'left',
+        loading = false,
+        wrapperRef
     } = props;
 
     const {onClose, onOkCallback} = useContext(PopupContext)
@@ -114,6 +123,29 @@ function Wrapper(props: WrapperProps) {
     //     return temp && !readonly && <Manual {...temp} type={isSideWay ? 'vertical' : 'horizontal'}/>;
     // };
 
+    useEffect(() => {
+        if (wrapperRef) {
+            wrapperRef.current = {
+                setFragmentsValue: (key, value) => {
+                    console.log('setFragmentsValue')
+                    console.log(key)
+                    console.log(value)
+                    const findIndex = validGroups.findIndex(item => item.key === key)
+                    if (findIndex === -1) {
+                        const keys = validGroups.map(item => item.key)
+                        throw new Error(`Wrong key, please checkout ${keys}`)
+                    }
+                    if (storeRef.current[key]) {
+                        storeRef.current[key].value = {...storeRef.current[key].value, ...value}
+                    } else {
+                        storeRef.current[key] = {value, listeners: []}
+                    }
+                    console.log('result:', storeRef.current)
+                }
+            }
+        }
+    }, [])
+
     const next = (nextCurrent: number) => {
         setCurrent(nextCurrent);
         const obj = validGroups[nextCurrent];
@@ -133,7 +165,6 @@ function Wrapper(props: WrapperProps) {
             const backingOut = await validGroups[index].onNext?.(storeRef.current[key]?.value, onHandle);
             if (backingOut) values = {...values, ...backingOut}
             storeRef.current[key].value = values
-            console.log('updateValues', values)
             return values
         }
         return null
@@ -237,6 +268,7 @@ function Wrapper(props: WrapperProps) {
 
     const cardProps: any = {
         bordered: false,
+        loading,
         bodyStyle: {padding: 0},
         title: title || validGroups[current]?.label,
         extra: <div onClick={onClose} style={{cursor: "pointer"}}><CloseOutlined/></div>
@@ -325,7 +357,7 @@ function Wrapper(props: WrapperProps) {
             activeKey: current.toString(),
             tabPosition: indicatorPosition,
             type: indicator,
-            onChange: setCurrent
+            onChange: setCurrent,
         }
         content = <ProCard {...cardProps}>{content}</ProCard>
     }

@@ -8,8 +8,6 @@ import React, {createContext} from "react";
 
 const permission = {
     checkAuthority: (authority: any) => {
-        console.log('----')
-        console.log(authority)
         return true;
     },
     errorPage: (

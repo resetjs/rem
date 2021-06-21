@@ -7,7 +7,7 @@ export interface PopupActionType {
         onOkCallback?: Function,
         mode?: 'modal' | 'drawer',
         width?: number | string,
-        [key: string]: any
+        data: any
     }) => void;
 }
 
@@ -40,15 +40,16 @@ function PopupContainer(props: PopupContainerProps) {
             mode?: 'modal' | 'drawer',
             width?: number | string
         }
+        data?: any
     }>>({});
 
     useEffect(() => {
 
         if (popups && popups.length > 0) {
             popups.forEach(item => {
-                const {key, onOkCallback, ...rest} = item;
+                const {key, component, onOkCallback, ...rest} = item;
                 components[item.key] = {
-                    component: item.component,
+                    component,
                     onOkCallback,
                     visible: false,
                     opts: rest
@@ -60,8 +61,9 @@ function PopupContainer(props: PopupContainerProps) {
 
             popupRef.current = {
                 trigger: (key, opts) => {
-                    if (components.hasOwnProperty('key')) {
+                    if (components.hasOwnProperty(key)) {
                         components[key].visible = !components[key].visible
+                        components[key].data = opts?.data
                     } else if (opts) {
                         const {component, onOkCallback, ...rest} = opts;
                         if (component) {
@@ -84,22 +86,21 @@ function PopupContainer(props: PopupContainerProps) {
     return <>
         {
             Object.keys(components).map(key => {
-                const {visible, component, onOkCallback, opts} = components[key];
+                const {visible, component, onOkCallback, data, opts} = components[key];
                 const value = {
                     onClose: () => {
                         components[key].visible = false
                         setComponents({...components})
                     },
                     onOkCallback: async (res: any) => {
-                        console.log('popup onOkCallback')
                         await onOkCallback?.(res)
                         await globalOnOkCallback?.(res)
                     }
                 }
 
                 const dom = (
-                    <PopupContext.Provider key={key} value={value}>
-                        {component}
+                    <PopupContext.Provider value={value}>
+                        {React.cloneElement(component, data)}
                     </PopupContext.Provider>
                 )
 

@@ -9,6 +9,7 @@ export default function ExProTable<T, U extends ParamsType, ValueType = 'text'>(
     const {
         columns,
         popupRef,
+        popups,
         actionRef: propsActionRef,
         handleCallback,
         ...userRest
@@ -33,6 +34,7 @@ export default function ExProTable<T, U extends ParamsType, ValueType = 'text'>(
                 actionRef.current?.clearSelected?.();
                 actionRef.current?.reload();
             }}
+            popups={popups}
             popupRef={popupRef} />
     </>
 }
